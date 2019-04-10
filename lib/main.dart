@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() => runApp(MyApp());
 
@@ -126,7 +127,10 @@ class MyHomePage extends StatelessWidget {
               child: OutlineButton(
                 shape: CircleBorder(),
                 color: Theme.of(context).backgroundColor,
-                onPressed: () {},
+                onPressed: () {
+                  Firestore.instance.collection('message').document()
+                      .setData({ 'date': new DateTime.now()});
+                },
                 child: Center(
                   child: Text(
                     "Help",
