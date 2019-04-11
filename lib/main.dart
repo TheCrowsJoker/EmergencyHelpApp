@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:sms/sms.dart';
 
 void main() => runApp(MyApp());
 
@@ -130,6 +131,9 @@ class MyHomePage extends StatelessWidget {
                 onPressed: () {
                   Firestore.instance.collection('message').document()
                       .setData({ 'date': new DateTime.now()});
+                  SmsSender sender = new SmsSender();
+                  String address = "MOBILE NO HERE";                              // todo Replace with mobile number
+                  sender.sendSms(new SmsMessage(address, 'Hello flutter!'));
                 },
                 child: Center(
                   child: Text(
