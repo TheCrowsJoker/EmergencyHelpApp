@@ -81,7 +81,7 @@ class _Menu extends StatelessWidget {
 class _MyAppState extends State<MyApp> {
 //  Timer values
   Timer _timer;
-  int _timerValue = 5;
+  int _timerValue = 1;
   bool _timerRunning = false;
 
 //  Set up values for messages
@@ -245,9 +245,9 @@ class _MyAppState extends State<MyApp> {
     _latitude = _currentLocation['latitude'];
     _longitude = _currentLocation['longitude'];
     _locationString = _latitude.toString() + "," + _longitude.toString();
-    _url = "https://www.google.com/maps/?q=$_locationString";
+    _url = "maps.google.com/maps/?q=" + _locationString;
     _message = "{User} has contacted you for help.\n"
-        "They are at this location: $_url.\n"
+        "They are at this location: $_url \n"
         "This was sent at: $_date";
 
     Firestore.instance.collection('message').document().setData({
