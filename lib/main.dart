@@ -5,6 +5,8 @@ import 'package:sms/sms.dart';
 import 'package:location/location.dart';
 import 'package:flutter/services.dart';
 
+import 'contacts.dart';
+
 String appName = "Emergency Help App";
 
 void main() => runApp(MyApp());
@@ -14,7 +16,7 @@ class MyApp extends StatefulWidget {
   State<StatefulWidget> createState() => _MyAppState();
 }
 
-class _Menu extends StatelessWidget {
+class Menu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -33,12 +35,22 @@ class _Menu extends StatelessWidget {
                 ListTile(
                   leading: Icon(Icons.home),
                   title: Text('Home'),
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      new MaterialPageRoute(builder: (context) => new MyApp()),
+                    );
+                  },
                 ),
                 ListTile(
                   leading: Icon(Icons.contacts),
                   title: Text('Contacts'),
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context, 
+                      new MaterialPageRoute(builder: (context) => new Contacts()),
+                    );
+                  },
                 ),
                 ListTile(
                   leading: Icon(Icons.map),
@@ -128,9 +140,9 @@ class _MyAppState extends State<MyApp> {
 
 //  Also used for location
   void initPlatformState() async {
-    Map<String, double> _my_location;
+    Map<String, double> _myLocation;
     try {
-      _my_location = await _location.getLocation();
+      _myLocation = await _location.getLocation();
       _error = "";
     } on PlatformException catch (e) {
       if (e.code == 'PERMISSION_DENIED')
@@ -138,10 +150,10 @@ class _MyAppState extends State<MyApp> {
       else if (e.code == "PERMISSION_DENIED_NEVER_ASK")
         _error =
             "Permission denied - please ask the user to enable it from the app settings";
-      _my_location = null;
+      _myLocation = null;
     }
     setState(() {
-      _currentLocation = _my_location;
+      _currentLocation = _myLocation;
     });
   }
 
@@ -163,7 +175,7 @@ class _MyAppState extends State<MyApp> {
     });
 
     sender = new SmsSender();
-    _address = "phone no"; // todo only using for testing
+    _address = "no"; // todo only using for testing
     sender.sendSms(new SmsMessage(_address, _message));
   }
 
@@ -231,7 +243,7 @@ class _MyAppState extends State<MyApp> {
                         _message = _controller.text;
 
                         sender = new SmsSender();
-                        _address = "0277764722"; // todo only using for testing
+                        _address = "no"; // todo only using for testing
                         sender.sendSms(new SmsMessage(_address, _message));
 
 //                        Close dialog
@@ -258,7 +270,7 @@ class _MyAppState extends State<MyApp> {
             appBar: AppBar(
               title: Text(appName),
             ),
-            drawer: _Menu(),
+            drawer: Menu(),
             body: Builder(
               builder: (context) => Container(
                     height: double.maxFinite,
