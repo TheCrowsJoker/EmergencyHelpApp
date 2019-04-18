@@ -5,7 +5,9 @@ import 'package:sms/sms.dart';
 import 'package:location/location.dart';
 import 'package:flutter/services.dart';
 
+import 'menu.dart';
 import 'contacts.dart';
+import 'addContact.dart';
 
 String appName = "Emergency Help App";
 
@@ -14,80 +16,6 @@ void main() => runApp(MyApp());
 class MyApp extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _MyAppState();
-}
-
-class Menu extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Drawer(
-      child: Column(
-        children: <Widget>[
-          Expanded(
-            child: ListView(
-              children: <Widget>[
-                DrawerHeader(
-                  // todo: Change this to the app logo when its been created
-                  child: Text("App logo will be here eventually\n"
-                      "For now, enjoy this poem extract by E.A. Poe:\n\n"
-                      "Years of love have been forgot,\n"
-                      "in the hatred of a minute"),
-                ),
-                ListTile(
-                  leading: Icon(Icons.home),
-                  title: Text('Home'),
-                  onTap: () {
-                    Navigator.pushReplacement(
-                      context,
-                      new MaterialPageRoute(builder: (context) => new MyApp()),
-                    );
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.contacts),
-                  title: Text('Contacts'),
-                  onTap: () {
-                    Navigator.push(
-                      context, 
-                      new MaterialPageRoute(builder: (context) => new Contacts()),
-                    );
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.map),
-                  title: Text('Map / List'),
-                  onTap: () {},
-                ),
-                ListTile(
-                  leading: Icon(Icons.chat),
-                  title: Text('Chat'),
-                  onTap: () {},
-                ),
-              ],
-            ),
-          ),
-          Container(
-              child: Align(
-                  alignment: FractionalOffset.bottomCenter,
-                  child: Container(
-                      child: Column(
-                    children: <Widget>[
-                      Divider(),
-                      ListTile(
-                        leading: Icon(Icons.settings),
-                        title: Text('Settings'),
-                        onTap: () {},
-                      ),
-                      ListTile(
-                        leading: Icon(Icons.info),
-                        title: Text('About'),
-                        onTap: () {},
-                      )
-                    ],
-                  ))))
-        ],
-      ),
-    );
-  }
 }
 
 class _MyAppState extends State<MyApp> {
@@ -179,7 +107,7 @@ class _MyAppState extends State<MyApp> {
     sender.sendSms(new SmsMessage(_address, _message));
   }
 
-  void startTimer(context) {
+  void startTimer(BuildContext context) {
     _timerRunning = true;
     const oneSec = const Duration(seconds: 1);
     _timer = new Timer.periodic(
@@ -209,7 +137,7 @@ class _MyAppState extends State<MyApp> {
     super.dispose();
   }
 
-  void _moreInfoDialog(context) {
+  void _moreInfoDialog(BuildContext context) {
 //    Clear the text from the dialog window before opening
     _controller.clear();
 
@@ -249,7 +177,13 @@ class _MyAppState extends State<MyApp> {
 //                        Close dialog
                         Navigator.pop(context);
                       },
-                      child: Text('Send'),
+                      color: Theme.of(context).primaryColorLight,
+                      child: Text(
+                        'Send',
+                        style: TextStyle(
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -266,6 +200,10 @@ class _MyAppState extends State<MyApp> {
         theme: ThemeData(
           primarySwatch: Colors.purple,
         ),
+        routes: {
+          '/contacts': (context) => Contacts(),
+          '/addContact': (context) => AddContact(),
+        },
         home: Scaffold(
             appBar: AppBar(
               title: Text(appName),

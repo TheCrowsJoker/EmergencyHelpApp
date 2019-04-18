@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-import 'main.dart';
+import 'menu.dart';
 
 class Contacts extends StatefulWidget {
   @override
@@ -24,27 +24,64 @@ class _ContactsState extends State<Contacts> {
             colors: [Colors.purple[400], Colors.purple[100]],
           ),
         ),
-        child: StreamBuilder(
-          stream: Firestore.instance.collection('contacts').snapshots(),
-          builder: (context, snapshot) {
-            return snapshot.hasData ?
-              ListView.builder(
-              itemCount: snapshot.data.documents.length,
-              itemBuilder: (context, index) {
-                DocumentSnapshot ds = snapshot.data.documents[index];
-                return Card(
-                  color: Colors.purple[100],
-                  elevation: 5.0,
-                  margin: new EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
-                  child: ListTile(
-                    leading: Icon(Icons.person),
-                    title: Text(ds['name']),
-                    trailing: Icon(Icons.check_box_outline_blank),
-                  ),
-                );
-              }
-            ) : CircularProgressIndicator();
-          }
+        child: Stack(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: StreamBuilder(
+                  stream: Firestore.instance.collection('contacts').snapshots(),
+                  builder: (context, snapshot) {
+                    return snapshot.hasData
+                        ? ListView.builder(
+                            itemCount: snapshot.data.documents.length,
+                            itemBuilder: (context, index) {
+                              DocumentSnapshot docSnap =
+                                  snapshot.data.documents[index];
+
+                              return Card(
+                                color: Colors.purple[100],
+                                elevation: 5.0,
+                                margin: new EdgeInsets.symmetric(
+                                    horizontal: 10.0, vertical: 6.0),
+                                child: ListTile(
+                                  leading: Icon(Icons.person),
+                                  title: Row(
+                                    children: <Widget>[
+                                      Text(
+                                        docSnap['name'],
+                                        style: TextStyle(
+                                          fontSize: 20.0,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        " | " + docSnap['phoneNumber'],
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w300,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  trailing: Icon(Icons.check_box_outline_blank),
+                                  onTap: () {}, // todo select contact
+                                  onLongPress: () {}, // todo delete contact
+                                ),
+                              );
+                            })
+                        : CircularProgressIndicator();
+                  }),
+            ),
+            Positioned(
+              bottom: 10.0,
+              right: 10.0,
+              child: FloatingActionButton(
+                child: Icon(Icons.add),
+                onPressed: () {
+                  Navigator.pushNamed(context, '/addContact');
+                },
+              ),
+            )
+          ],
         ),
       ),
     );
