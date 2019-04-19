@@ -62,7 +62,7 @@ class _AddContactState extends State<AddContact> {
                 ),
                 RaisedButton(
                   onPressed: () {
-                    _nameController.text.isNotEmpty ||
+                    _nameController.text.isNotEmpty &&
                         _phoneNumberController.text.isNotEmpty ?
                       updateDatabase(context) :
                       null;

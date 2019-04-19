@@ -1,10 +1,13 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sms/sms.dart';
 import 'package:location/location.dart';
 import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
 
+import 'createAccount.dart';
 import 'menu.dart';
 import 'contacts.dart';
 import 'addContact.dart';
@@ -19,6 +22,10 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+//  Account key
+  String _key;
+  bool _doesUserHaveAccount;
+
 //  Timer values
   Timer _timer;
   int _timerValue = 5; // todo replace with 10 seconds
@@ -49,7 +56,7 @@ class _MyAppState extends State<MyApp> {
 
   final _controller = TextEditingController();
 
-//  Used for location
+//  Used for location and setting up an account
   @override
   void initState() {
     super.initState();
@@ -64,6 +71,10 @@ class _MyAppState extends State<MyApp> {
         _currentLocation = _result;
       });
     });
+
+    _checkKey().then((result) => setState(() {
+          _doesUserHaveAccount = result;
+        }));
   }
 
 //  Also used for location
@@ -193,6 +204,16 @@ class _MyAppState extends State<MyApp> {
         });
   }
 
+  Future<bool> _checkKey() async {
+    _key = await readKey();
+
+    if (_key != "0") {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -204,96 +225,129 @@ class _MyAppState extends State<MyApp> {
           '/contacts': (context) => Contacts(),
           '/addContact': (context) => AddContact(),
         },
-        home: Scaffold(
-            appBar: AppBar(
-              title: Text(appName),
-            ),
-            drawer: Menu(),
-            body: Builder(
-              builder: (context) => Container(
-                    height: double.maxFinite,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topRight,
-                        end: Alignment.bottomLeft,
-                        colors: [Colors.purple[400], Colors.purple[100]],
-                      ),
-                    ),
-                    child: Stack(
-                      children: <Widget>[
-                        Column(
+        home: _doesUserHaveAccount == true
+            ? // If the user doesnt have an account, let them create one
+            Scaffold(
+                appBar: AppBar(
+                  title: Text(appName),
+                ),
+                drawer: Menu(),
+                body: Builder(
+                  builder: (context) => Container(
+                        height: double.maxFinite,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topRight,
+                            end: Alignment.bottomLeft,
+                            colors: [Colors.purple[400], Colors.purple[100]],
+                          ),
+                        ),
+                        child: Stack(
                           children: <Widget>[
+                            Column(
+                              children: <Widget>[
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 50.0, horizontal: 20.0),
+                                  child: Center(
+                                    child: Text(
+                                      !_timerRunning
+                                          ? "Send location by clicking help"
+                                          : "Touch button again to cancel",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 20.0,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                             Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 50.0, horizontal: 20.0),
-                              child: Center(
-                                child: Text(
-                                  !_timerRunning
-                                      ? "Send location by clicking help"
-                                      : "Touch button again to cancel",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20.0,
+                              padding: const EdgeInsets.all(50.0),
+                              child: OutlineButton(
+                                shape: CircleBorder(),
+                                color: Theme.of(context).backgroundColor,
+                                onPressed: () {
+                                  if (!_timerRunning)
+                                    startTimer(context);
+                                  else
+                                    stopTimer();
+                                },
+                                child: Center(
+                                  child: Text(
+                                    !_timerRunning
+                                        ? "Help"
+                                        : _timerValue == -1
+                                            ? "Sent"
+                                            : _timerValue.toString(),
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 48.0,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(20.0),
+                              child: Align(
+                                alignment: FractionalOffset.bottomCenter,
+                                child: ButtonTheme(
+                                  minWidth: double.infinity,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(10.0)),
+                                  height: 50.0,
+                                  child: OutlineButton(
+                                    color: Theme.of(context).backgroundColor,
+                                    child: Text(
+                                      "More Help...",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18.0,
+                                      ),
+                                    ),
+                                    onPressed: () {},
                                   ),
                                 ),
                               ),
                             ),
                           ],
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(50.0),
-                          child: OutlineButton(
-                            shape: CircleBorder(),
-                            color: Theme.of(context).backgroundColor,
-                            onPressed: () {
-                              if (!_timerRunning)
-                                startTimer(context);
-                              else
-                                stopTimer();
-                            },
-                            child: Center(
-                              child: Text(
-                                !_timerRunning
-                                    ? "Help"
-                                    : _timerValue == -1
-                                        ? "Sent"
-                                        : _timerValue.toString(),
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 48.0,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child: Align(
-                            alignment: FractionalOffset.bottomCenter,
-                            child: ButtonTheme(
-                              minWidth: double.infinity,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10.0)),
-                              height: 50.0,
-                              child: OutlineButton(
-                                color: Theme.of(context).backgroundColor,
-                                child: Text(
-                                  "More Help...",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18.0,
-                                  ),
-                                ),
-                                onPressed: () {
+                      ),
+                ))
+            : CreateAccount());
+  }
+}
 
-                                },
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-            )));
+Future<String> get _localPath async {
+  final directory = await getApplicationDocumentsDirectory();
+  return directory.path;
+}
+
+Future<File> get _localFile async {
+  final path = await _localPath;
+  return File('$path/key.txt');
+}
+
+Future<File> writeKey(String key) async {
+  final file = await _localFile;
+
+  // Write the file
+  return file.writeAsString('$key');
+}
+
+Future<String> readKey() async {
+  try {
+    final file = await _localFile;
+
+    // Read the file
+    String contents = await file.readAsString();
+
+    return contents;
+  } catch (e) {
+    // If encountering an error, return 0
+    return "0";
   }
 }
