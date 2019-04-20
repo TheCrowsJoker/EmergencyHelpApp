@@ -13,6 +13,7 @@ import 'contacts.dart';
 import 'addContact.dart';
 
 String appName = "Emergency Help App";
+String savedKey; // Keep global so can be accessed from all files
 
 void main() => runApp(MyApp());
 
@@ -72,9 +73,14 @@ class _MyAppState extends State<MyApp> {
       });
     });
 
+//    Check if user has a key
     _checkKey().then((result) => setState(() {
           _doesUserHaveAccount = result;
         }));
+//    Save key to variable for quicker reading
+    readKey().then((result) => setState(() {
+      savedKey = result;
+    }));
   }
 
 //  Also used for location
@@ -107,6 +113,7 @@ class _MyAppState extends State<MyApp> {
         "This was sent at: $_date";
 
     Firestore.instance.collection('message').document().setData({
+      'userID': savedKey,
       'date': _date,
       'location': GeoPoint(_latitude, _longitude),
       'mapsURL': _url,
@@ -308,7 +315,7 @@ class _MyAppState extends State<MyApp> {
                                         fontSize: 18.0,
                                       ),
                                     ),
-                                    onPressed: () {},
+                                    onPressed: () {writeKey("0");},
                                   ),
                                 ),
                               ),

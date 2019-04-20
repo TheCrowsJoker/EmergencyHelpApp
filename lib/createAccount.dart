@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'main.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
+
+import 'main.dart';
 
 class CreateAccount extends StatelessWidget {
   final _usernameController = TextEditingController();
@@ -60,9 +61,12 @@ class CreateAccount extends StatelessWidget {
                               .setData({
                             'id': id,
                             'username': _usernameController.text,
+                            'dateJoined': DateTime.now(),
                           });
 
                           writeKey(id);
+
+                          Navigator.pushReplacementNamed(context, '/');
                         }
                       },
                     ),

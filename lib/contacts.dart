@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import 'menu.dart';
+import 'main.dart';
+
 
 class Contacts extends StatefulWidget {
   @override
@@ -9,6 +11,9 @@ class Contacts extends StatefulWidget {
 }
 
 class _ContactsState extends State<Contacts> {
+  final _nameController = TextEditingController();
+  final _phoneNumberController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,45 +34,50 @@ class _ContactsState extends State<Contacts> {
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: StreamBuilder(
-                  stream: Firestore.instance.collection('contacts').snapshots(),
+                  stream: Firestore.instance
+                      .collection('contacts')
+                      .where('userID', isEqualTo: savedKey)
+                      .snapshots(),
                   builder: (context, snapshot) {
                     return snapshot.hasData
                         ? ListView.builder(
-                            itemCount: snapshot.data.documents.length,
-                            itemBuilder: (context, index) {
-                              DocumentSnapshot docSnap =
-                                  snapshot.data.documents[index];
-
-                              return Card(
-                                color: Colors.purple[100],
-                                elevation: 5.0,
-                                margin: new EdgeInsets.symmetric(
-                                    horizontal: 10.0, vertical: 6.0),
-                                child: ListTile(
-                                  leading: Icon(Icons.person),
-                                  title: Row(
-                                    children: <Widget>[
-                                      Text(
-                                        docSnap['name'],
-                                        style: TextStyle(
-                                          fontSize: 20.0,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      Text(
-                                        " | " + docSnap['phoneNumber'],
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w300,
-                                        ),
-                                      ),
-                                    ],
+                        itemCount: snapshot.data.documents.length,
+                        itemBuilder: (context, index) {
+                          DocumentSnapshot docSnap =
+                          snapshot.data.documents[index];
+                          return Card(
+                            color: Colors.purple[100],
+                            elevation: 5.0,
+                            margin: new EdgeInsets.symmetric(
+                                horizontal: 10.0, vertical: 6.0),
+                            child: ListTile(
+                              leading: Icon(Icons.person),
+                              title: Row(
+                                children: <Widget>[
+                                  Text(
+                                    docSnap['name'],
+                                    style: TextStyle(
+                                      fontSize: 20.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                  trailing: Icon(Icons.check_box_outline_blank),
-                                  onTap: () {}, // todo select contact
-                                  onLongPress: () {}, // todo delete contact
-                                ),
-                              );
-                            })
+                                  Text(
+                                    " | " + docSnap['phoneNumber'],
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w300,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              trailing: Icon(Icons.check_box_outline_blank),
+                              onTap: () {},
+                              // todo select contact
+                              onLongPress: () {
+                                showContactMenu(context, docSnap['contactID'], docSnap['name'], docSnap['phoneNumber']);
+                              },
+                            ),
+                          );
+                        })
                         : CircularProgressIndicator();
                   }),
             ),
@@ -85,5 +95,153 @@ class _ContactsState extends State<Contacts> {
         ),
       ),
     );
+  }
+
+  void showContactMenu(BuildContext context, String id, String name, String phoneNumber) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return SimpleDialog(
+              title: Text(
+                "More Options...",
+                textAlign: TextAlign.center,
+              ),
+              children: <Widget>[
+                FlatButton(
+                  child: Text("Edit"),
+                  onPressed: () {
+//                    Navigator.pop(context);
+                    editContact(context, id, name, phoneNumber);
+                  },
+                ),
+                FlatButton(
+                  child: Text("Delete"),
+                  onPressed: () {
+//                    Navigator.pop(context);
+                    deleteContact(context, id, name);
+                  },
+                )
+              ]);
+        });
+  }
+
+  void deleteContact(BuildContext context, String id, String name) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return SimpleDialog(
+              title: Text(
+                "Are you sure you want to delete " + name,
+                textAlign: TextAlign.center,
+              ),
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      FlatButton(
+                        child: Text("No"),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                      RaisedButton(
+                        child: Text("Yes"),
+                        onPressed: () {
+                          Firestore.instance
+                              .collection('contacts')
+                              .where('contactID', isEqualTo: id)
+                              .limit(1)
+                              .getDocuments()
+                              .then((doc) {
+                            if (doc.documents.length > 0)
+                              Firestore.instance
+                                  .collection('contacts')
+                                  .document(doc.documents[0].documentID)
+                                  .delete();
+                            else {
+                              print("error, no docs found");
+                            }
+                          });
+                          Navigator.pop(context);
+                        },
+                      )
+                    ],
+                  ),
+                ),
+              ]);
+        });
+  }
+
+  void editContact(BuildContext context, String id, String name, String phoneNumber) {
+    _nameController.text = name;
+    _phoneNumberController.text = phoneNumber;
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return SimpleDialog(
+              title: Text(
+                "Edit " + name,
+                textAlign: TextAlign.center,
+              ),
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextFormField(
+                    decoration: InputDecoration(labelText: 'Name'),
+                    controller: _nameController,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextFormField(
+                    decoration: InputDecoration(labelText: 'Phone Number'),
+                    controller: _phoneNumberController,
+                    keyboardType: TextInputType.numberWithOptions(),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      FlatButton(
+                        child: Text("Cancel"),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                      RaisedButton(
+                        child: Text("Save"),
+                        onPressed: () {
+                          Firestore.instance
+                              .collection('contacts')
+                              .where('contactID', isEqualTo: id)
+                              .limit(1)
+                              .getDocuments()
+                              .then((doc) {
+                            if (doc.documents.length > 0)
+                              Firestore.instance
+                                  .collection('contacts')
+                                  .document(doc.documents[0].documentID)
+                                  .updateData({
+                                'name': _nameController.text,
+                                'phoneNumber': _phoneNumberController.text,
+                              });
+                            else {
+                              print("error, no docs found");
+                            }
+                          });
+                          Navigator.pop(context);
+                        },
+                      )
+                    ],
+                  ),
+                ),
+
+              ]);
+        });
   }
 }
