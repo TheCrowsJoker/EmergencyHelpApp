@@ -33,7 +33,7 @@ class _MyAppState extends State<MyApp> {
   bool _timerRunning = false;
 
 //  Set up values for messages
-  DateTime _date;
+  Timestamp _date;
   double _latitude;
   double _longitude;
   String _locationString;
@@ -43,6 +43,11 @@ class _MyAppState extends State<MyApp> {
 //  SMS values
   SmsSender sender;
   String _address;
+
+  int numMessagesToSend;
+  int numMessagesLeftToSend;
+  String tempMessage;
+  int charLimit;
 
 //  Location values
   Map<String, double> _currentLocation = new Map();
@@ -79,8 +84,8 @@ class _MyAppState extends State<MyApp> {
         }));
 //    Save key to variable for quicker reading
     readKey().then((result) => setState(() {
-      savedKey = result;
-    }));
+          savedKey = result;
+        }));
   }
 
 //  Also used for location
@@ -103,14 +108,13 @@ class _MyAppState extends State<MyApp> {
   }
 
   void sendMessages() {
-    _date = new DateTime.now();
+    _date = new Timestamp.now();
     _latitude = _currentLocation['latitude'];
     _longitude = _currentLocation['longitude'];
     _locationString = _latitude.toString() + "," + _longitude.toString();
     _url = "maps.google.com/maps/?q=" + _locationString;
     _message = "{User} has contacted you for help.\n"
-        "They are at this location: $_url \n"
-        "This was sent at: $_date";
+        "They are at this location: $_url";
 
     Firestore.instance.collection('message').document().setData({
       'userID': savedKey,
@@ -119,6 +123,7 @@ class _MyAppState extends State<MyApp> {
       'mapsURL': _url,
       'message': _message,
     });
+
 
     sender = new SmsSender();
     _address = "no"; // todo only using for testing
@@ -189,8 +194,30 @@ class _MyAppState extends State<MyApp> {
                         _message = _controller.text;
 
                         sender = new SmsSender();
-                        _address = "no"; // todo only using for testing
-                        sender.sendSms(new SmsMessage(_address, _message));
+                        charLimit = 150;
+
+                        if (_message.length >= charLimit) {
+                          numMessagesToSend =
+                              (_message.length / charLimit).ceil();
+                          numMessagesLeftToSend = numMessagesToSend;
+                          for (int i = 0;
+                              i <= _message.length;
+                              i += charLimit) {
+                            tempMessage = "(" +
+                                ((numMessagesToSend - numMessagesLeftToSend) + 1)
+                                    .toString() +
+                                "/" +
+                                numMessagesToSend.toString() +
+                                ") ";
+                            if (numMessagesLeftToSend != 1.0)
+                               tempMessage += _message.substring(i, i + charLimit);
+                            else
+                              tempMessage += _message.substring(i);
+
+                            sender.sendSms(new SmsMessage(_address, tempMessage));
+                            numMessagesLeftToSend--;
+                          }
+                        }
 
 //                        Close dialog
                         Navigator.pop(context);
@@ -315,7 +342,9 @@ class _MyAppState extends State<MyApp> {
                                         fontSize: 18.0,
                                       ),
                                     ),
-                                    onPressed: () {writeKey("0");},
+                                    onPressed: () {
+                                      writeKey("0");
+                                    },
                                   ),
                                 ),
                               ),

@@ -61,7 +61,7 @@ class CreateAccount extends StatelessWidget {
                               .setData({
                             'id': id,
                             'username': _usernameController.text,
-                            'dateJoined': DateTime.now(),
+                            'dateJoined': Timestamp.now(),
                           });
 
                           writeKey(id);

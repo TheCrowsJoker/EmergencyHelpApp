@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:emergency_help/autoScrollText.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'menu.dart';
@@ -55,7 +57,9 @@ class _ContactsState extends State<Contacts> {
                               title: Row(
                                 children: <Widget>[
                                   Text(
-                                    docSnap['name'],
+                                    docSnap['name'].length < 8.0 ?
+                                      docSnap['name'] :
+                                      docSnap['name'].toString().substring(0, 8) + "...",
                                     style: TextStyle(
                                       fontSize: 20.0,
                                       fontWeight: FontWeight.bold,
@@ -69,11 +73,21 @@ class _ContactsState extends State<Contacts> {
                                   ),
                                 ],
                               ),
-                              trailing: Icon(Icons.check_box_outline_blank),
-                              onTap: () {},
-                              // todo select contact
+                              trailing: docSnap['selected'] == false ?
+                                Icon(Icons.check_box_outline_blank) :
+                                Icon(Icons.check_box),
+                              onTap: () {
+                                selectContact(context, docSnap['contactID'], docSnap['selected']);
+                              },
                               onLongPress: () {
-                                showContactMenu(context, docSnap['contactID'], docSnap['name'], docSnap['phoneNumber']);
+                                showContactMenu(
+                                    context,
+                                    docSnap['contactID'],
+                                    docSnap['name'],
+                                    docSnap['phoneNumber'],
+                                    docSnap['dateAdded'],
+                                    docSnap['selected']
+                                );
                               },
                             ),
                           );
@@ -97,7 +111,7 @@ class _ContactsState extends State<Contacts> {
     );
   }
 
-  void showContactMenu(BuildContext context, String id, String name, String phoneNumber) {
+  void showContactMenu(BuildContext context, String id, String name, String phoneNumber, DateTime date, bool selected) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -108,16 +122,20 @@ class _ContactsState extends State<Contacts> {
               ),
               children: <Widget>[
                 FlatButton(
+                  child: Text("Details"),
+                  onPressed: () {
+                    contactDetails(context, id, name, phoneNumber, date, selected);
+                  },
+                ),
+                FlatButton(
                   child: Text("Edit"),
                   onPressed: () {
-//                    Navigator.pop(context);
                     editContact(context, id, name, phoneNumber);
                   },
                 ),
                 FlatButton(
                   child: Text("Delete"),
                   onPressed: () {
-//                    Navigator.pop(context);
                     deleteContact(context, id, name);
                   },
                 )
@@ -241,6 +259,120 @@ class _ContactsState extends State<Contacts> {
                   ),
                 ),
 
+              ]);
+        });
+  }
+
+  void selectContact(BuildContext context, String id, bool selected) {
+    Firestore.instance
+        .collection('contacts')
+        .where('contactID', isEqualTo: id)
+        .limit(1)
+        .getDocuments()
+        .then((doc) {
+      if (doc.documents.length > 0)
+        Firestore.instance
+            .collection('contacts')
+            .document(doc.documents[0].documentID)
+            .updateData({
+          'selected': selected == false ? true : false,
+        });
+      else {
+        print("error, no docs found");
+      }
+    });
+  }
+
+  void contactDetails(BuildContext context, String id, String name, String phoneNumber, DateTime date, bool selected) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return SimpleDialog(
+              title: Text(
+                name,
+                textAlign: TextAlign.center,
+              ),
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: <Widget>[
+                      Row(
+                        children: <Widget>[
+                          Text(
+                            "ID: ",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          AutoScrollText(
+                            items: <Widget>[
+                              Text(
+                                id,
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                      Row(
+                        children: <Widget>[
+                          Text(
+                            "Name: ",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(name),
+                        ],
+                      ),
+                      Row(
+                        children: <Widget>[
+                          Text(
+                            "Phone Number: ",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(phoneNumber),
+
+                        ],
+                      ),
+                      Row(
+                        children: <Widget>[
+                          Text(
+                            "Date added: ",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(date.toString()),
+                        ],
+                      ),
+                      Row(
+                        children: <Widget>[
+                          Text(
+                            "Selected: ",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(selected.toString()),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: <Widget>[
+                          RaisedButton(
+                            child: Text("Close"),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
               ]);
         });
   }

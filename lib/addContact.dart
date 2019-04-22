@@ -27,9 +27,10 @@ class _AddContactState extends State<AddContact> {
     Firestore.instance.collection('contacts').document().setData({
       'name': _nameController.text,
       'phoneNumber': _phoneNumberController.text,
-      'dateAdded': DateTime.now(),
+      'dateAdded': Timestamp.now(),
       'userID': savedKey,
       'contactID': id,
+      'selected': false,
     });
     Navigator.pop(context);
   }
