@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -14,6 +15,8 @@ import 'addContact.dart';
 
 String appName = "Emergency Help App";
 String savedKey; // Keep global so can be accessed from all files
+bool doesUserHaveAccount;
+
 
 void main() => runApp(MyApp());
 
@@ -25,7 +28,6 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
 //  Account key
   String _key;
-  bool _doesUserHaveAccount;
 
 //  Timer values
   Timer _timer;
@@ -42,7 +44,7 @@ class _MyAppState extends State<MyApp> {
 
 //  SMS values
   SmsSender sender;
-  String _address;
+  List<String> addresses;
 
   int numMessagesToSend;
   int numMessagesLeftToSend;
@@ -80,7 +82,7 @@ class _MyAppState extends State<MyApp> {
 
 //    Check if user has a key
     _checkKey().then((result) => setState(() {
-          _doesUserHaveAccount = result;
+          doesUserHaveAccount = result;
         }));
 //    Save key to variable for quicker reading
     readKey().then((result) => setState(() {
@@ -107,7 +109,7 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  void sendMessages() {
+  void sendMessages() async {
     _date = new Timestamp.now();
     _latitude = _currentLocation['latitude'];
     _longitude = _currentLocation['longitude'];
@@ -124,10 +126,52 @@ class _MyAppState extends State<MyApp> {
       'message': _message,
     });
 
-
+    addresses = await getSelectedContactDetails("phoneNumber");
     sender = new SmsSender();
-    _address = "no"; // todo only using for testing
-    sender.sendSms(new SmsMessage(_address, _message));
+
+    for (var address in addresses)
+      sender.sendSms(new SmsMessage(address, _message));
+  }
+
+  void sendMoreInfoMessages() async {
+    addresses = await getSelectedContactDetails("phoneNumber");
+    print(addresses[0]);
+
+    _message = _controller.text;
+    print(_message);
+    sender = new SmsSender();
+    charLimit = 150;
+
+    if (_message.length >= charLimit) {
+      numMessagesToSend =
+          (_message.length / charLimit).ceil();
+      numMessagesLeftToSend = numMessagesToSend;
+      for (int i = 0;
+      i <= _message.length;
+      i += charLimit) {
+        tempMessage = "(" +
+            ((numMessagesToSend - numMessagesLeftToSend) + 1)
+                .toString() +
+            "/" +
+            numMessagesToSend.toString() +
+            ") ";
+        if (numMessagesLeftToSend != 1.0)
+          tempMessage += _message.substring(i, i + charLimit);
+        else
+          tempMessage += _message.substring(i);
+
+        for (var address in addresses) {
+          sender.sendSms(new SmsMessage(address, tempMessage));
+        }
+
+        numMessagesLeftToSend--;
+      }
+    } else {
+      tempMessage = _message;
+      for (var address in addresses) {
+        sender.sendSms(new SmsMessage(address, tempMessage));
+      }
+    }
   }
 
   void startTimer(BuildContext context) {
@@ -191,33 +235,7 @@ class _MyAppState extends State<MyApp> {
                     ),
                     RaisedButton(
                       onPressed: () {
-                        _message = _controller.text;
-
-                        sender = new SmsSender();
-                        charLimit = 150;
-
-                        if (_message.length >= charLimit) {
-                          numMessagesToSend =
-                              (_message.length / charLimit).ceil();
-                          numMessagesLeftToSend = numMessagesToSend;
-                          for (int i = 0;
-                              i <= _message.length;
-                              i += charLimit) {
-                            tempMessage = "(" +
-                                ((numMessagesToSend - numMessagesLeftToSend) + 1)
-                                    .toString() +
-                                "/" +
-                                numMessagesToSend.toString() +
-                                ") ";
-                            if (numMessagesLeftToSend != 1.0)
-                               tempMessage += _message.substring(i, i + charLimit);
-                            else
-                              tempMessage += _message.substring(i);
-
-                            sender.sendSms(new SmsMessage(_address, tempMessage));
-                            numMessagesLeftToSend--;
-                          }
-                        }
+                        sendMoreInfoMessages();
 
 //                        Close dialog
                         Navigator.pop(context);
@@ -248,8 +266,27 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
+  Future<List> getSelectedContactDetails(String detail) async {
+    List<String> list = [];
+    await Firestore.instance
+        .collection('contacts')
+        .where('userID', isEqualTo: savedKey)
+        .where('selected', isEqualTo: true)
+        .getDocuments().then((querySnapshot) {
+      querySnapshot.documents.forEach((i) {
+        list.add(i.data[detail]);
+      });
+    });
+
+    return list;
+  }
+
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     return MaterialApp(
         title: appName,
         theme: ThemeData(
@@ -259,7 +296,7 @@ class _MyAppState extends State<MyApp> {
           '/contacts': (context) => Contacts(),
           '/addContact': (context) => AddContact(),
         },
-        home: _doesUserHaveAccount == true
+        home: doesUserHaveAccount == true
             ? // If the user doesnt have an account, let them create one
             Scaffold(
                 appBar: AppBar(
@@ -344,6 +381,7 @@ class _MyAppState extends State<MyApp> {
                                     ),
                                     onPressed: () {
                                       writeKey("0");
+//                                      getSelectedContactDetails("phoneNumber");
                                     },
                                   ),
                                 ),
