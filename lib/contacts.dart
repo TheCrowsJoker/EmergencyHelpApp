@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'menu.dart';
 import 'main.dart';
 
-
 class Contacts extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _ContactsState();
@@ -15,6 +14,13 @@ class Contacts extends StatefulWidget {
 class _ContactsState extends State<Contacts> {
   final _nameController = TextEditingController();
   final _phoneNumberController = TextEditingController();
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _phoneNumberController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,58 +47,73 @@ class _ContactsState extends State<Contacts> {
                       .where('userID', isEqualTo: savedKey)
                       .snapshots(),
                   builder: (context, snapshot) {
-                    return snapshot.hasData
-                        ? ListView.builder(
-                        itemCount: snapshot.data.documents.length,
-                        itemBuilder: (context, index) {
-                          DocumentSnapshot docSnap =
-                          snapshot.data.documents[index];
-                          return Card(
-                            color: Colors.purple[100],
-                            elevation: 5.0,
-                            margin: new EdgeInsets.symmetric(
-                                horizontal: 10.0, vertical: 6.0),
-                            child: ListTile(
-                              leading: Icon(Icons.person),
-                              title: Row(
-                                children: <Widget>[
-                                  Text(
-                                    docSnap['name'].length < 8.0 ?
-                                      docSnap['name'] :
-                                      docSnap['name'].toString().substring(0, 8) + "...",
-                                    style: TextStyle(
-                                      fontSize: 20.0,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                    if (snapshot.hasData) {
+                      if (snapshot.data.documents.length > 0) {
+                        return ListView.builder(
+                            itemCount: snapshot.data.documents.length,
+                            itemBuilder: (context, index) {
+                              DocumentSnapshot docSnap =
+                                  snapshot.data.documents[index];
+                              return Card(
+                                color: Colors.purple[100],
+                                elevation: 5.0,
+                                margin: new EdgeInsets.symmetric(
+                                    horizontal: 10.0, vertical: 6.0),
+                                child: ListTile(
+                                  leading: Icon(Icons.person),
+                                  title: Row(
+                                    children: <Widget>[
+                                      Text(
+                                        docSnap['name'].length < 8.0
+                                            ? docSnap['name']
+                                            : docSnap['name']
+                                                    .toString()
+                                                    .substring(0, 8) +
+                                                "...",
+                                        style: TextStyle(
+                                          fontSize: 20.0,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        " | " + docSnap['phoneNumber'],
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w300,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  Text(
-                                    " | " + docSnap['phoneNumber'],
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w300,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              trailing: docSnap['selected'] == false ?
-                                Icon(Icons.check_box_outline_blank) :
-                                Icon(Icons.check_box),
-                              onTap: () {
-                                selectContact(context, docSnap['contactID'], docSnap['selected']);
-                              },
-                              onLongPress: () {
-                                showContactMenu(
-                                    context,
-                                    docSnap['contactID'],
-                                    docSnap['name'],
-                                    docSnap['phoneNumber'],
-                                    docSnap['dateAdded'],
-                                    docSnap['selected']
-                                );
-                              },
-                            ),
-                          );
-                        })
-                        : CircularProgressIndicator();
+                                  trailing: docSnap['selected'] == false
+                                      ? Icon(Icons.check_box_outline_blank)
+                                      : Icon(Icons.check_box),
+                                  onTap: () {
+                                    selectContact(context, docSnap['contactID'],
+                                        docSnap['selected']);
+                                  },
+                                  onLongPress: () {
+                                    showContactMenu(
+                                        context,
+                                        docSnap['contactID'],
+                                        docSnap['name'],
+                                        docSnap['phoneNumber'],
+                                        docSnap['dateAdded'],
+                                        docSnap['selected']);
+                                  },
+                                ),
+                              );
+                            });
+                      } else {
+                        return Center(
+                            child: Text(
+                              "No contacts added yet",
+                          style: TextStyle(
+                            fontSize: 20.0,
+                          ),
+                        ));
+                      }
+                    } else {
+                      return CircularProgressIndicator();
+                    }
                   }),
             ),
             Positioned(
@@ -111,7 +132,8 @@ class _ContactsState extends State<Contacts> {
     );
   }
 
-  void showContactMenu(BuildContext context, String id, String name, String phoneNumber, DateTime date, bool selected) {
+  void showContactMenu(BuildContext context, String id, String name,
+      String phoneNumber, DateTime date, bool selected) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -124,7 +146,8 @@ class _ContactsState extends State<Contacts> {
                 FlatButton(
                   child: Text("Details"),
                   onPressed: () {
-                    contactDetails(context, id, name, phoneNumber, date, selected);
+                    contactDetails(
+                        context, id, name, phoneNumber, date, selected);
                   },
                 ),
                 FlatButton(
@@ -192,7 +215,8 @@ class _ContactsState extends State<Contacts> {
         });
   }
 
-  void editContact(BuildContext context, String id, String name, String phoneNumber) {
+  void editContact(
+      BuildContext context, String id, String name, String phoneNumber) {
     _nameController.text = name;
     _phoneNumberController.text = phoneNumber;
 
@@ -258,7 +282,6 @@ class _ContactsState extends State<Contacts> {
                     ],
                   ),
                 ),
-
               ]);
         });
   }
@@ -283,7 +306,8 @@ class _ContactsState extends State<Contacts> {
     });
   }
 
-  void contactDetails(BuildContext context, String id, String name, String phoneNumber, DateTime date, bool selected) {
+  void contactDetails(BuildContext context, String id, String name,
+      String phoneNumber, DateTime date, bool selected) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -334,7 +358,6 @@ class _ContactsState extends State<Contacts> {
                             ),
                           ),
                           Text(phoneNumber),
-
                         ],
                       ),
                       Row(

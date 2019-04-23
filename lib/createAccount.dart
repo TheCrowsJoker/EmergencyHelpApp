@@ -7,6 +7,10 @@ import 'main.dart';
 class CreateAccount extends StatelessWidget {
   final _usernameController = TextEditingController();
 
+  void dispose() {
+    _usernameController.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

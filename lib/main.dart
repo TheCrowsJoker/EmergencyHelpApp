@@ -13,10 +13,11 @@ import 'menu.dart';
 import 'contacts.dart';
 import 'addContact.dart';
 
+// Global variables that need to be accessed from other files
 String appName = "Emergency Help App";
-String savedKey; // Keep global so can be accessed from all files
-bool doesUserHaveAccount;
-
+String savedKey;
+// Set true by default so the login screen doesnt briefly appear every app launch
+bool doesUserHaveAccount = true;
 
 void main() => runApp(MyApp());
 
@@ -36,6 +37,7 @@ class _MyAppState extends State<MyApp> {
 
 //  Set up values for messages
   Timestamp _date;
+  String _username;
   double _latitude;
   double _longitude;
   String _locationString;
@@ -43,13 +45,13 @@ class _MyAppState extends State<MyApp> {
   String _url;
 
 //  SMS values
-  SmsSender sender;
-  List<String> addresses;
+  SmsSender _sender;
+  List<String> _addresses;
 
-  int numMessagesToSend;
-  int numMessagesLeftToSend;
-  String tempMessage;
-  int charLimit;
+  int _numMessagesToSend;
+  int _numMessagesLeftToSend;
+  String _tempMessage;
+  int _charLimit;
 
 //  Location values
   Map<String, double> _currentLocation = new Map();
@@ -111,11 +113,12 @@ class _MyAppState extends State<MyApp> {
 
   void sendMessages() async {
     _date = new Timestamp.now();
+    _username = await getUserDetail("username");
     _latitude = _currentLocation['latitude'];
     _longitude = _currentLocation['longitude'];
     _locationString = _latitude.toString() + "," + _longitude.toString();
     _url = "maps.google.com/maps/?q=" + _locationString;
-    _message = "{User} has contacted you for help.\n"
+    _message = "$_username has contacted you for help.\n"
         "They are at this location: $_url";
 
     Firestore.instance.collection('message').document().setData({
@@ -126,50 +129,50 @@ class _MyAppState extends State<MyApp> {
       'message': _message,
     });
 
-    addresses = await getSelectedContactDetails("phoneNumber");
-    sender = new SmsSender();
+    _addresses = await getSelectedContactDetails("phoneNumber");
+    _sender = new SmsSender();
 
-    for (var address in addresses)
-      sender.sendSms(new SmsMessage(address, _message));
+    for (var address in _addresses)
+      _sender.sendSms(new SmsMessage(address, _message));
   }
 
   void sendMoreInfoMessages() async {
-    addresses = await getSelectedContactDetails("phoneNumber");
-    print(addresses[0]);
+    _addresses = await getSelectedContactDetails("phoneNumber");
+    print(_addresses[0]);
 
     _message = _controller.text;
     print(_message);
-    sender = new SmsSender();
-    charLimit = 150;
+    _sender = new SmsSender();
+    _charLimit = 150;
 
-    if (_message.length >= charLimit) {
-      numMessagesToSend =
-          (_message.length / charLimit).ceil();
-      numMessagesLeftToSend = numMessagesToSend;
+    if (_message.length >= _charLimit) {
+      _numMessagesToSend =
+          (_message.length / _charLimit).ceil();
+      _numMessagesLeftToSend = _numMessagesToSend;
       for (int i = 0;
       i <= _message.length;
-      i += charLimit) {
-        tempMessage = "(" +
-            ((numMessagesToSend - numMessagesLeftToSend) + 1)
+      i += _charLimit) {
+        _tempMessage = "(" +
+            ((_numMessagesToSend - _numMessagesLeftToSend) + 1)
                 .toString() +
             "/" +
-            numMessagesToSend.toString() +
+            _numMessagesToSend.toString() +
             ") ";
-        if (numMessagesLeftToSend != 1.0)
-          tempMessage += _message.substring(i, i + charLimit);
+        if (_numMessagesLeftToSend != 1.0)
+          _tempMessage += _message.substring(i, i + _charLimit);
         else
-          tempMessage += _message.substring(i);
+          _tempMessage += _message.substring(i);
 
-        for (var address in addresses) {
-          sender.sendSms(new SmsMessage(address, tempMessage));
+        for (var address in _addresses) {
+          _sender.sendSms(new SmsMessage(address, _tempMessage));
         }
 
-        numMessagesLeftToSend--;
+        _numMessagesLeftToSend--;
       }
     } else {
-      tempMessage = _message;
-      for (var address in addresses) {
-        sender.sendSms(new SmsMessage(address, tempMessage));
+      _tempMessage = _message;
+      for (var address in _addresses) {
+        _sender.sendSms(new SmsMessage(address, _tempMessage));
       }
     }
   }
@@ -264,6 +267,20 @@ class _MyAppState extends State<MyApp> {
     } else {
       return false;
     }
+  }
+
+  Future<String> getUserDetail(String detail) async {
+    String field;
+    await Firestore.instance
+        .collection('users')
+        .where('id', isEqualTo: savedKey)
+        .limit(1)
+        .getDocuments()
+        .then((doc) {
+      field = doc.documents.first[detail];
+    });
+
+    return field;
   }
 
   Future<List> getSelectedContactDetails(String detail) async {

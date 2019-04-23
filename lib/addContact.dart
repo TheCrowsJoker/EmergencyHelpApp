@@ -30,7 +30,7 @@ class _AddContactState extends State<AddContact> {
       'dateAdded': Timestamp.now(),
       'userID': savedKey,
       'contactID': id,
-      'selected': false,
+      'selected': true,
     });
     Navigator.pop(context);
   }
