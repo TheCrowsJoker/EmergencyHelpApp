@@ -6,9 +6,11 @@ import 'main.dart';
 
 class CreateAccount extends StatelessWidget {
   final _usernameController = TextEditingController();
+  final _phoneNumberController = TextEditingController();
 
   void dispose() {
     _usernameController.dispose();
+    _phoneNumberController.dispose();
   }
 
   @override
@@ -34,6 +36,12 @@ class CreateAccount extends StatelessWidget {
                   labelText: 'Username',
                 ),
                 controller: _usernameController,
+              ),
+              TextFormField(
+                decoration: InputDecoration(
+                  labelText: 'Phone number',
+                ),
+                controller: _phoneNumberController,
               ),
               TextFormField( // todo add password
                 decoration: InputDecoration(
@@ -65,6 +73,7 @@ class CreateAccount extends StatelessWidget {
                               .setData({
                             'id': id,
                             'username': _usernameController.text,
+                            'phoneNumber': _phoneNumberController.text,
                             'dateJoined': Timestamp.now(),
                           });
 

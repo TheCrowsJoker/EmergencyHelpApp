@@ -53,6 +53,10 @@ class _MyAppState extends State<MyApp> {
   String _tempMessage;
   int _charLimit;
 
+//  Error messages
+  String noContactsSelected = "You have not selected any contacts, "
+      "this alert wont get sent to anyone";
+
 //  Location values
   Map<String, double> _currentLocation = new Map();
 
@@ -146,15 +150,11 @@ class _MyAppState extends State<MyApp> {
     _charLimit = 150;
 
     if (_message.length >= _charLimit) {
-      _numMessagesToSend =
-          (_message.length / _charLimit).ceil();
+      _numMessagesToSend = (_message.length / _charLimit).ceil();
       _numMessagesLeftToSend = _numMessagesToSend;
-      for (int i = 0;
-      i <= _message.length;
-      i += _charLimit) {
+      for (int i = 0; i <= _message.length; i += _charLimit) {
         _tempMessage = "(" +
-            ((_numMessagesToSend - _numMessagesLeftToSend) + 1)
-                .toString() +
+            ((_numMessagesToSend - _numMessagesLeftToSend) + 1).toString() +
             "/" +
             _numMessagesToSend.toString() +
             ") ";
@@ -269,27 +269,14 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-  Future<String> getUserDetail(String detail) async {
-    String field;
-    await Firestore.instance
-        .collection('users')
-        .where('id', isEqualTo: savedKey)
-        .limit(1)
-        .getDocuments()
-        .then((doc) {
-      field = doc.documents.first[detail];
-    });
-
-    return field;
-  }
-
   Future<List> getSelectedContactDetails(String detail) async {
     List<String> list = [];
     await Firestore.instance
         .collection('contacts')
         .where('userID', isEqualTo: savedKey)
         .where('selected', isEqualTo: true)
-        .getDocuments().then((querySnapshot) {
+        .getDocuments()
+        .then((querySnapshot) {
       querySnapshot.documents.forEach((i) {
         list.add(i.data[detail]);
       });
@@ -357,9 +344,15 @@ class _MyAppState extends State<MyApp> {
                                 shape: CircleBorder(),
                                 color: Theme.of(context).backgroundColor,
                                 onPressed: () {
-                                  if (!_timerRunning)
-                                    startTimer(context);
-                                  else
+                                  if (!_timerRunning) {
+                                    selectedContacts().then((anyContacts) {
+                                      if (anyContacts == true)
+                                        startTimer(context);
+                                      else
+                                        errorDialog(
+                                            context, noContactsSelected);
+                                    });
+                                  } else
                                     stopTimer();
                                 },
                                 child: Center(
@@ -410,7 +403,61 @@ class _MyAppState extends State<MyApp> {
                 ))
             : CreateAccount());
   }
+
+  Future<bool> selectedContacts() async {
+    List list = await getSelectedContactDetails("contactID");
+    if (list.length == 0)
+      return false;
+    else
+      return true;
+  }
+
+  void errorDialog(BuildContext context, String string) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return SimpleDialog(
+            title: Center(child: Text("Error!")),
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(string),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    RaisedButton(
+                      onPressed: () {
+//                        Close dialog
+                        Navigator.pop(context);
+                      },
+                      child: Text('Close'),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        });
+  }
 }
+
+Future<String> getUserDetail(String detail) async {
+  String field;
+  await Firestore.instance
+      .collection('users')
+      .where('id', isEqualTo: savedKey)
+      .limit(1)
+      .getDocuments()
+      .then((doc) {
+    field = doc.documents.first[detail];
+  });
+
+  return field;
+}
+
 
 Future<String> get _localPath async {
   final directory = await getApplicationDocumentsDirectory();

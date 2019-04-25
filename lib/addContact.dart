@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:sms/sms.dart';
 import 'package:uuid/uuid.dart';
 
 import 'main.dart';
@@ -12,6 +13,9 @@ class AddContact extends StatefulWidget {
 class _AddContactState extends State<AddContact> {
   final _nameController = TextEditingController();
   final _phoneNumberController = TextEditingController();
+
+  SmsSender _sender;
+  String _message;
 
   @override
   void dispose() {
@@ -85,6 +89,7 @@ class _AddContactState extends State<AddContact> {
                           :
                           // ignore: unnecessary_statements
                           null;
+                      sendNotificationMessage();
                     },
                     color: Theme.of(context).primaryColorLight,
                     disabledColor: Colors.grey,
@@ -102,5 +107,14 @@ class _AddContactState extends State<AddContact> {
         ),
       ),
     );
+  }
+
+  void sendNotificationMessage() async {
+    String userPhoneNumber = await getUserDetail("phoneNumber");
+    _message = "You have been added as a contact on " + appName + " by " + userPhoneNumber + ". "
+        "This is an app that allows them to send you their "
+        "location when they are in trouble.";
+    _sender = new SmsSender();
+    _sender.sendSms(new SmsMessage(_phoneNumberController.text, _message));
   }
 }
