@@ -144,13 +144,12 @@ class _MyAppState extends State<MyApp> {
 
   void sendMoreInfoMessages() async {
     _addresses = await getSelectedContactDetails("phoneNumber");
-    print(_addresses[0]);
 
     _message = _controller.text;
-    print(_message);
     _sender = new SmsSender();
     _charLimit = 150;
 
+//    Split message into small messages so they can be sent via sms
     if (_message.length >= _charLimit) {
       _numMessagesToSend = (_message.length / _charLimit).ceil();
       _numMessagesLeftToSend = _numMessagesToSend;
@@ -177,6 +176,13 @@ class _MyAppState extends State<MyApp> {
         _sender.sendSms(new SmsMessage(address, _tempMessage));
       }
     }
+
+//    Store message in database too
+    Firestore.instance.collection('moreInfoMessages').document().setData({
+      'userID': savedKey,
+      'date': _date, // we dont reset the date so it is the same as the last message that was sent
+      'message': _message,
+    });
   }
 
   void startTimer(BuildContext context) {
