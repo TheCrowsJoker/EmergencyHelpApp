@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:collection';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -12,6 +11,7 @@ import 'createAccount.dart';
 import 'menu.dart';
 import 'contacts.dart';
 import 'addContact.dart';
+import 'resources.dart';
 
 // Global variables that need to be accessed from other files
 String appName = "Emergency Help App";
@@ -299,6 +299,7 @@ class _MyAppState extends State<MyApp> {
         routes: {
           '/contacts': (context) => Contacts(),
           '/addContact': (context) => AddContact(),
+          '/resources': (context) => Resources(),
         },
         home: doesUserHaveAccount == true
             ? // If the user doesnt have an account, let them create one
@@ -457,7 +458,6 @@ Future<String> getUserDetail(String detail) async {
 
   return field;
 }
-
 
 Future<String> get _localPath async {
   final directory = await getApplicationDocumentsDirectory();
