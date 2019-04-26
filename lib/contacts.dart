@@ -112,7 +112,7 @@ class _ContactsState extends State<Contacts> {
                         ));
                       }
                     } else {
-                      return CircularProgressIndicator();
+                      return Center(child: CircularProgressIndicator());
                     }
                   }),
             ),

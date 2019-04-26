@@ -56,14 +56,16 @@ class Menu extends StatelessWidget {
                         children: <Widget>[
                           Divider(),
                           ListTile(
-                            leading: Icon(Icons.settings),
-                            title: Text('Settings'),
+                            leading: Icon(Icons.person),
+                            title: Text('Profile'),
                             onTap: () {},
                           ),
                           ListTile(
                             leading: Icon(Icons.info),
                             title: Text('About'),
-                            onTap: () {},
+                            onTap: () {
+                              openPage(context, '/about');
+                            },
                           )
                         ],
                       ))))

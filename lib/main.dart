@@ -12,6 +12,7 @@ import 'menu.dart';
 import 'contacts.dart';
 import 'addContact.dart';
 import 'resources.dart';
+import 'about.dart';
 
 // Global variables that need to be accessed from other files
 String appName = "Emergency Help App";
@@ -32,7 +33,7 @@ class _MyAppState extends State<MyApp> {
 
 //  Timer values
   Timer _timer;
-  int _timerValue = 5; // todo replace with 10 seconds
+  int _timerValue = 10;
   bool _timerRunning = false;
 
 //  Set up values for messages
@@ -300,6 +301,7 @@ class _MyAppState extends State<MyApp> {
           '/contacts': (context) => Contacts(),
           '/addContact': (context) => AddContact(),
           '/resources': (context) => Resources(),
+          '/about': (context) => About(),
         },
         home: doesUserHaveAccount == true
             ? // If the user doesnt have an account, let them create one
@@ -391,8 +393,7 @@ class _MyAppState extends State<MyApp> {
                                       ),
                                     ),
                                     onPressed: () {
-                                      writeKey("0");
-//                                      getSelectedContactDetails("phoneNumber");
+                                      Navigator.pushNamed(context, '/resources');
                                     },
                                   ),
                                 ),
