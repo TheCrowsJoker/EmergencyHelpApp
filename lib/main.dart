@@ -180,7 +180,9 @@ class _MyAppState extends State<MyApp> {
   }
 
   void startTimer(BuildContext context) {
-    _timerRunning = true;
+    setState(() {
+      _timerRunning = true;
+    });
     const oneSec = const Duration(seconds: 1);
     _timer = new Timer.periodic(
         oneSec,
@@ -197,7 +199,9 @@ class _MyAppState extends State<MyApp> {
 
   void stopTimer() {
     _timer.cancel();
-    _timerRunning = false;
+    setState(() {
+      _timerRunning = false;
+    });
     _timerValue = 10;
   }
 
@@ -388,14 +392,18 @@ class _MyAppState extends State<MyApp> {
                                   child: OutlineButton(
                                     color: Theme.of(context).backgroundColor,
                                     child: Text(
-                                      "More Help...",
+                                      !_timerRunning ?
+                                      "More Help...":
+                                      "Send now",
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 18.0,
                                       ),
                                     ),
                                     onPressed: () {
-                                      Navigator.pushNamed(context, '/resources');
+                                      !_timerRunning ?
+                                      Navigator.pushNamed(context, '/resources') :
+                                      _timerValue = 0; // Used to send message straight away
                                     },
                                   ),
                                 ),
