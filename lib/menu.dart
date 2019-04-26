@@ -58,7 +58,9 @@ class Menu extends StatelessWidget {
                           ListTile(
                             leading: Icon(Icons.person),
                             title: Text('Profile'),
-                            onTap: () {},
+                            onTap: () {
+                              openPage(context, '/profile');
+                            },
                           ),
                           ListTile(
                             leading: Icon(Icons.info),

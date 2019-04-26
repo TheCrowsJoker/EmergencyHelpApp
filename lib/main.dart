@@ -12,6 +12,7 @@ import 'menu.dart';
 import 'contacts.dart';
 import 'addContact.dart';
 import 'resources.dart';
+import 'profile.dart';
 import 'about.dart';
 
 // Global variables that need to be accessed from other files
@@ -301,6 +302,7 @@ class _MyAppState extends State<MyApp> {
           '/contacts': (context) => Contacts(),
           '/addContact': (context) => AddContact(),
           '/resources': (context) => Resources(),
+          '/profile': (context) => Profile(),
           '/about': (context) => About(),
         },
         home: doesUserHaveAccount == true
