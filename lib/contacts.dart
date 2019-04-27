@@ -1,9 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emergency_help/autoScrollText.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'menu.dart';
 import 'main.dart';
 
 class Contacts extends StatefulWidget {
@@ -28,7 +26,6 @@ class _ContactsState extends State<Contacts> {
       appBar: AppBar(
         title: Text("Contacts"),
       ),
-      drawer: Menu(),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -105,7 +102,7 @@ class _ContactsState extends State<Contacts> {
                       } else {
                         return Center(
                             child: Text(
-                              "No contacts added yet",
+                          "No contacts added yet",
                           style: TextStyle(
                             fontSize: 20.0,
                           ),
@@ -116,16 +113,32 @@ class _ContactsState extends State<Contacts> {
                     }
                   }),
             ),
-            Positioned(
-              bottom: 10.0,
-              right: 10.0,
-              child: FloatingActionButton(
-                child: Icon(Icons.add),
-                onPressed: () {
-                  Navigator.pushNamed(context, '/addContact');
-                },
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: FloatingActionButton(
+                  heroTag: 'addBtn',
+                  child: Icon(Icons.add),
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/addContact');
+                  },
+                ),
               ),
-            )
+            ),
+           Align(
+              alignment: Alignment.bottomLeft,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: FloatingActionButton(
+                  heroTag: 'homeBtn',
+                  child: Icon(Icons.home),
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/');
+                  },
+                ),
+              ),
+            ),
           ],
         ),
       ),

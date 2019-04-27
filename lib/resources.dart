@@ -2,8 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'menu.dart';
-
 class Resources extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _ResourcesState();
@@ -50,7 +48,6 @@ class _ResourcesState extends State<Resources> {
             ],
           ),
         ),
-        drawer: Menu(),
         body: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -59,10 +56,27 @@ class _ResourcesState extends State<Resources> {
               colors: [Colors.purple[400], Colors.purple[100]],
             ),
           ),
-          child: TabBarView(
-            children: [
-              map(context),
-              list(context),
+          child: Stack(
+            children: <Widget>[
+              TabBarView(
+                children: [
+                  map(context),
+                  list(context),
+                ],
+              ),
+              Align(
+                alignment: Alignment.bottomLeft,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: FloatingActionButton(
+                    heroTag: 'homeBtn',
+                    child: Icon(Icons.home),
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/');
+                    },
+                  ),
+                ),
+              ),
             ],
           ),
         ),

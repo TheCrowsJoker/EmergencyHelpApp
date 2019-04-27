@@ -53,56 +53,73 @@ class _AddContactState extends State<AddContact> {
             colors: [Colors.purple[400], Colors.purple[100]],
           ),
         ),
-        child: Column(
+        child: Stack(
           children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextFormField(
-                decoration: InputDecoration(labelText: 'Name'),
-                controller: _nameController,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextFormField(
-                decoration: InputDecoration(labelText: 'Phone Number'),
-                controller: _phoneNumberController,
-                keyboardType: TextInputType.numberWithOptions(),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  FlatButton(
-                    child: Text("Cancel"),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
+            Column(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextFormField(
+                    decoration: InputDecoration(labelText: 'Name'),
+                    controller: _nameController,
                   ),
-                  RaisedButton(
-                    onPressed: () {
-                      _nameController.text.isNotEmpty &&
-                              _phoneNumberController.text.isNotEmpty
-                          ? updateDatabase(context)
-                          :
-                          // ignore: unnecessary_statements
-                          null;
-                      sendNotificationMessage();
-                    },
-                    color: Theme.of(context).primaryColorLight,
-                    disabledColor: Colors.grey,
-                    child: Text(
-                      "Add",
-                      style: TextStyle(
-                        color: Theme.of(context).primaryColor,
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextFormField(
+                    decoration: InputDecoration(labelText: 'Phone Number'),
+                    controller: _phoneNumberController,
+                    keyboardType: TextInputType.numberWithOptions(),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      FlatButton(
+                        child: Text("Cancel"),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
                       ),
-                    ),
-                  )
-                ],
+                      RaisedButton(
+                        onPressed: () {
+                          _nameController.text.isNotEmpty &&
+                                  _phoneNumberController.text.isNotEmpty
+                              ? updateDatabase(context)
+                              :
+                              // ignore: unnecessary_statements
+                              null;
+                          sendNotificationMessage();
+                        },
+                        color: Theme.of(context).primaryColorLight,
+                        disabledColor: Colors.grey,
+                        child: Text(
+                          "Add",
+                          style: TextStyle(
+                            color: Theme.of(context).primaryColor,
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
+            Align(
+              alignment: Alignment.bottomLeft,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: FloatingActionButton(
+                  heroTag: 'homeBtn',
+                  child: Icon(Icons.home),
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/');
+                  },
+                ),
               ),
-            )
+            ),
           ],
         ),
       ),

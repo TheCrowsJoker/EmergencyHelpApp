@@ -309,6 +309,7 @@ class _MyAppState extends State<MyApp> {
           primarySwatch: Colors.purple,
         ),
         routes: {
+          '/home': (context) => MyApp(),
           '/contacts': (context) => Contacts(),
           '/addContact': (context) => AddContact(),
           '/resources': (context) => Resources(),

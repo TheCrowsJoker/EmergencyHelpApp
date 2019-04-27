@@ -80,7 +80,7 @@ class CreateAccount extends StatelessWidget {
                           writeKey(id);
 
                           doesUserHaveAccount = true;
-                          Navigator.pushReplacementNamed(context, '/contacts');
+                          Navigator.pushNamed(context, '/contacts');
                         }
                       },
                     ),

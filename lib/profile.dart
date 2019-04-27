@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import 'main.dart';
-import 'menu.dart';
 
 class Profile extends StatefulWidget {
   @override
@@ -33,7 +32,6 @@ class _ProfileState extends State<Profile> {
       appBar: AppBar(
         title: Text("Profile"),
       ),
-      drawer: Menu(),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -55,8 +53,8 @@ class _ProfileState extends State<Profile> {
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
                       DocumentSnapshot docSnap = snapshot.data.documents[0];
-                      _username =  docSnap['username'];
-                      _phoneNumber =  docSnap['phoneNumber'];
+                      _username = docSnap['username'];
+                      _phoneNumber = docSnap['phoneNumber'];
 //                      Only set the controllers once to use as initial values
                       if (onlyOnce == true) {
                         _usernameController.text = _username;
@@ -101,40 +99,55 @@ class _ProfileState extends State<Profile> {
                     }
                   }),
             ),
-            Positioned(
-              bottom: 10.0,
-              right: 10.0,
-              child: FloatingActionButton.extended(
-                icon: Icon(Icons.edit),
-                label: Text(editing == true ? "Stop Editing" : "Edit"),
-                onPressed: () {
-                  setState(() {
-                    editing == true ? editing = false : editing = true;
-                  });
-                  if (_username != _usernameController.text ||
-                  _phoneNumber != _phoneNumberController.text) {
-                    Firestore.instance
-                        .collection('users')
-                        .where('id', isEqualTo: savedKey)
-                        .limit(1)
-                        .getDocuments()
-                        .then((doc) {
-                      if (doc.documents.length > 0)
-                        Firestore.instance
-                            .collection('users')
-                            .document(doc.documents[0].documentID)
-                            .updateData({
-                          'username': _usernameController.text,
-                          'phoneNumber': _phoneNumberController.text,
-                        });
-                      else {
-                        print("error, no docs found");
-                      }
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: FloatingActionButton.extended(
+                  icon: Icon(Icons.edit),
+                  label: Text(editing == true ? "Stop Editing" : "Edit"),
+                  onPressed: () {
+                    setState(() {
+                      editing == true ? editing = false : editing = true;
                     });
-                  }
-                },
+                    if (_username != _usernameController.text ||
+                        _phoneNumber != _phoneNumberController.text) {
+                      Firestore.instance
+                          .collection('users')
+                          .where('id', isEqualTo: savedKey)
+                          .limit(1)
+                          .getDocuments()
+                          .then((doc) {
+                        if (doc.documents.length > 0)
+                          Firestore.instance
+                              .collection('users')
+                              .document(doc.documents[0].documentID)
+                              .updateData({
+                            'username': _usernameController.text,
+                            'phoneNumber': _phoneNumberController.text,
+                          });
+                        else {
+                          print("error, no docs found");
+                        }
+                      });
+                    }
+                  },
+                ),
               ),
-            )
+            ),
+            Align(
+              alignment: Alignment.bottomLeft,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: FloatingActionButton(
+                  heroTag: 'homeBtn',
+                  child: Icon(Icons.home),
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/');
+                  },
+                ),
+              ),
+            ),
           ],
         ),
       ),
