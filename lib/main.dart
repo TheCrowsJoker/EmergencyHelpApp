@@ -12,6 +12,8 @@ import 'menu.dart';
 import 'contacts.dart';
 import 'addContact.dart';
 import 'resources.dart';
+import 'chatroom.dart';
+import 'addChat.dart';
 import 'profile.dart';
 import 'about.dart';
 
@@ -56,7 +58,7 @@ class _MyAppState extends State<MyApp> {
   int _charLimit;
 
 //  Error messages
-  String noContactsSelected = "You have not selected any contacts, "
+  String noContactsSelectedError = "You have not selected any contacts, "
       "this alert wont get sent to anyone";
 
 //  Location values
@@ -232,8 +234,13 @@ class _MyAppState extends State<MyApp> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextFormField(
-                  decoration: InputDecoration(labelText: 'Message'),
+                  decoration: InputDecoration(
+                      labelText: 'Message',
+                      alignLabelWithHint: true
+                  ),
                   controller: _controller,
+                  maxLines: 5,
+                  textCapitalization: TextCapitalization.sentences,
                 ),
               ),
               Padding(
@@ -313,6 +320,8 @@ class _MyAppState extends State<MyApp> {
           '/contacts': (context) => Contacts(),
           '/addContact': (context) => AddContact(),
           '/resources': (context) => Resources(),
+          '/chatroom': (context) => Chatroom(),
+          '/addChat': (context) => AddChat(),
           '/profile': (context) => Profile(),
           '/about': (context) => About(),
         },
@@ -366,7 +375,7 @@ class _MyAppState extends State<MyApp> {
                                         startTimer(context);
                                       else
                                         errorDialog(
-                                            context, noContactsSelected);
+                                            context, noContactsSelectedError);
                                     });
                                   } else
                                     stopTimer();
@@ -430,37 +439,6 @@ class _MyAppState extends State<MyApp> {
     else
       return true;
   }
-
-  void errorDialog(BuildContext context, String string) {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return SimpleDialog(
-            title: Center(child: Text("Error!")),
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(string),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                    RaisedButton(
-                      onPressed: () {
-//                        Close dialog
-                        Navigator.pop(context);
-                      },
-                      child: Text('Close'),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          );
-        });
-  }
 }
 
 Future<String> getUserDetail(String detail) async {
@@ -506,4 +484,35 @@ Future<String> readKey() async {
     // If encountering an error, return 0
     return "0";
   }
+}
+
+void errorDialog(BuildContext context, String string) {
+  showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: Center(child: Text("Error!")),
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(string),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  RaisedButton(
+                    onPressed: () {
+//                        Close dialog
+                      Navigator.pop(context);
+                    },
+                    child: Text('Close'),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      });
 }

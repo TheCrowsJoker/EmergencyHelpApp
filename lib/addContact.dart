@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:sms/sms.dart';
@@ -17,6 +19,8 @@ class _AddContactState extends State<AddContact> {
   SmsSender _sender;
   String _message;
 
+  String contactExistsError = "This contact already exists";
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -25,18 +29,28 @@ class _AddContactState extends State<AddContact> {
   }
 
   void updateDatabase(BuildContext context) {
-    Uuid uuid = new Uuid();
-    String id = uuid.v1();
+    checkContactExists(_phoneNumberController.text).then((result) {
+      if (result != true) {
+        Uuid uuid = new Uuid();
+        String id = uuid.v1();
 
-    Firestore.instance.collection('contacts').document().setData({
-      'name': _nameController.text,
-      'phoneNumber': _phoneNumberController.text,
-      'dateAdded': Timestamp.now(),
-      'userID': savedKey,
-      'contactID': id,
-      'selected': true,
+        Firestore.instance.collection('contacts').document().setData({
+          'name': _nameController.text,
+          'phoneNumber': _phoneNumberController.text,
+          'dateAdded': Timestamp.now(),
+          'userID': savedKey,
+          'contactID': id,
+          'selected': true,
+        });
+        Navigator.pop(context);
+
+        sendNotificationMessage();
+      } else {
+        errorDialog(context, contactExistsError);
+
+      }
     });
-    Navigator.pop(context);
+
   }
 
   @override
@@ -86,19 +100,22 @@ class _AddContactState extends State<AddContact> {
                       RaisedButton(
                         onPressed: () {
                           _nameController.text.isNotEmpty &&
-                                  _phoneNumberController.text.isNotEmpty
+                              _phoneNumberController.text.isNotEmpty
                               ? updateDatabase(context)
                               :
-                              // ignore: unnecessary_statements
-                              null;
-                          sendNotificationMessage();
+                          // ignore: unnecessary_statements
+                          null;
                         },
-                        color: Theme.of(context).primaryColorLight,
+                        color: Theme
+                            .of(context)
+                            .primaryColorLight,
                         disabledColor: Colors.grey,
                         child: Text(
                           "Add",
                           style: TextStyle(
-                            color: Theme.of(context).primaryColor,
+                            color: Theme
+                                .of(context)
+                                .primaryColor,
                           ),
                         ),
                       )
@@ -128,10 +145,25 @@ class _AddContactState extends State<AddContact> {
 
   void sendNotificationMessage() async {
     String userPhoneNumber = await getUserDetail("phoneNumber");
-    _message = "You have been added as a contact on " + appName + " by " + userPhoneNumber + ". "
+    _message = "You have been added as a contact on " + appName + " by " +
+        userPhoneNumber + ". "
         "This is an app that allows them to send you their "
         "location when they are in trouble.";
     _sender = new SmsSender();
     _sender.sendSms(new SmsMessage(_phoneNumberController.text, _message));
+  }
+
+  Future<bool> checkContactExists(String number) async {
+    bool result;
+    await Firestore.instance
+        .collection('contacts')
+        .where('userID', isEqualTo: savedKey)
+        .where('phoneNumber', isEqualTo: number)
+        .getDocuments()
+        .then((docs) {
+      docs.documents.length == 0 ? result = false : result = true;
+    });
+
+    return result;
   }
 }

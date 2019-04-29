@@ -42,8 +42,10 @@ class Menu extends StatelessWidget {
                 ),
                 ListTile(
                   leading: Icon(Icons.chat),
-                  title: Text('Chat'),
-                  onTap: () {},
+                  title: Text('Chatroom'),
+                  onTap: () {
+                    openPage(context, '/chatroom');
+                  },
                 ),
               ],
             ),
@@ -85,6 +87,7 @@ class Menu extends StatelessWidget {
     });
 
     if (!isNewRouteSameAsCurrent) {
+      Navigator.of(context).pop();
       Navigator.pushNamed(context, page);
     } else {
       Navigator.of(context).pop();
