@@ -76,6 +76,7 @@ class _ProfileState extends State<Profile> {
                                   InputDecoration(labelText: 'Username'),
                               enabled: editing,
                               controller: _usernameController,
+                              textCapitalization: TextCapitalization.words,
                             ),
                             TextFormField(
 //                              initialValue: _phoneNumber,

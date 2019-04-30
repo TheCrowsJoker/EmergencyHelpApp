@@ -36,6 +36,7 @@ class CreateAccount extends StatelessWidget {
                   labelText: 'Username',
                 ),
                 controller: _usernameController,
+                textCapitalization: TextCapitalization.words,
               ),
               TextFormField(
                 decoration: InputDecoration(

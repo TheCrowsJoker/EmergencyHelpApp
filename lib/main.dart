@@ -14,6 +14,7 @@ import 'addContact.dart';
 import 'resources.dart';
 import 'chatroom.dart';
 import 'addChat.dart';
+import 'replies.dart';
 import 'profile.dart';
 import 'about.dart';
 
@@ -121,7 +122,7 @@ class _MyAppState extends State<MyApp> {
 
   void sendMessages() async {
     _date = new Timestamp.now();
-    _username = await getUserDetail("username");
+    _username = await getUserDetail("username", savedKey);
     _latitude = _currentLocation['latitude'];
     _longitude = _currentLocation['longitude'];
     _locationString = _latitude.toString() + "," + _longitude.toString();
@@ -441,11 +442,11 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-Future<String> getUserDetail(String detail) async {
+Future<String> getUserDetail(String detail, String id) async {
   String field;
   await Firestore.instance
       .collection('users')
-      .where('id', isEqualTo: savedKey)
+      .where('id', isEqualTo: id)
       .limit(1)
       .getDocuments()
       .then((doc) {

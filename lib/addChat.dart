@@ -23,7 +23,7 @@ class _AddChatState extends State<AddChat> {
     Uuid uuid = new Uuid();
     String id = uuid.v1();
 
-    String username = await getUserDetail('username');
+    String username = await getUserDetail('username', savedKey);
 
     Firestore.instance.collection('chats').document().setData({
       'messageID': id,

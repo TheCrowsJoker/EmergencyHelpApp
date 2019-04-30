@@ -76,6 +76,7 @@ class _AddContactState extends State<AddContact> {
                   child: TextFormField(
                     decoration: InputDecoration(labelText: 'Name'),
                     controller: _nameController,
+                    textCapitalization: TextCapitalization.words,
                   ),
                 ),
                 Padding(
@@ -144,7 +145,7 @@ class _AddContactState extends State<AddContact> {
   }
 
   void sendNotificationMessage() async {
-    String userPhoneNumber = await getUserDetail("phoneNumber");
+    String userPhoneNumber = await getUserDetail("phoneNumber", savedKey);
     _message = "You have been added as a contact on " + appName + " by " +
         userPhoneNumber + ". "
         "This is an app that allows them to send you their "
