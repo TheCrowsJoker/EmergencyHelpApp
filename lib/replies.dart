@@ -174,7 +174,7 @@ class _RepliesState extends State<Replies> {
                                               MainAxisAlignment.end,
                                           children: <Widget>[
                                             Text(
-                                              docSnap['likes'].toString() +
+                                              docSnap['likes'].length.toString() +
                                                   " Likes",
                                               style: TextStyle(
                                                 fontWeight: FontWeight.w300,
@@ -182,8 +182,14 @@ class _RepliesState extends State<Replies> {
                                               ),
                                             ),
                                             IconButton(
-                                              icon:
-                                                  Icon(FontAwesomeIcons.heart),
+                                              icon: docSnap['likes']
+                                                  .contains(savedKey)
+                                                  ? Icon(
+                                                  FontAwesomeIcons.solidHeart)
+                                                  : Icon(FontAwesomeIcons.heart),
+                                              onPressed: () {
+                                                likeMessage(docSnap['messageID']);
+                                              },
                                             ),
                                           ],
                                         )

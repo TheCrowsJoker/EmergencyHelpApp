@@ -31,7 +31,7 @@ class _AddChatState extends State<AddChat> {
       'message': _messageController.text,
       'dateSent': Timestamp.now(),
       'userID': savedKey,
-      'likes': 0,
+      'likes': [],
     });
     Navigator.pop(context);
   }

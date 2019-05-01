@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:emergency_help/main.dart';
 import 'package:emergency_help/replies.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +35,7 @@ class _ChatroomState extends State<Chatroom> {
               child: StreamBuilder(
                   stream: Firestore.instance
                       .collection('chats')
-                      .orderBy('dateSent')
+                      .orderBy('dateSent', descending: true)
                       .snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
@@ -53,8 +56,8 @@ class _ChatroomState extends State<Chatroom> {
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) => Replies(
-                                            docSnap['messageID'],
-                                          )),
+                                                docSnap['messageID'],
+                                              )),
                                     );
                                   },
                                   title: Column(
@@ -91,10 +94,11 @@ class _ChatroomState extends State<Chatroom> {
                                         ),
                                       ),
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
                                         children: <Widget>[
                                           Text(
-                                            docSnap['likes'].toString() +
+                                            docSnap['likes'].length.toString() +
                                                 " Likes",
                                             style: TextStyle(
                                               fontWeight: FontWeight.w300,
@@ -102,7 +106,14 @@ class _ChatroomState extends State<Chatroom> {
                                             ),
                                           ),
                                           IconButton(
-                                            icon: Icon(FontAwesomeIcons.heart),
+                                            icon: docSnap['likes']
+                                                    .contains(savedKey)
+                                                ? Icon(
+                                                    FontAwesomeIcons.solidHeart)
+                                                : Icon(FontAwesomeIcons.heart),
+                                            onPressed: () {
+                                              likeMessage(docSnap['messageID']);
+                                            },
                                           ),
                                         ],
                                       )
@@ -158,6 +169,28 @@ class _ChatroomState extends State<Chatroom> {
   }
 }
 
+Future likeMessage(String id) async {
+  Firestore.instance
+      .collection('chats')
+      .where('messageID', isEqualTo: id)
+      .limit(1)
+      .getDocuments()
+      .then((doc) {
+    if (doc.documents.length > 0)
+      Firestore.instance
+          .collection('chats')
+          .document(doc.documents[0].documentID)
+          .updateData({
+        'likes': !doc.documents[0]['likes'].contains(savedKey)
+            ? FieldValue.arrayUnion([savedKey])
+            : FieldValue.arrayRemove([savedKey]),
+      });
+    else {
+      print("error, no docs found");
+    }
+  });
+}
+
 String formatDateOptions(DateTime date) {
   String finalDate;
   DateTime now = DateTime.now();
@@ -172,16 +205,15 @@ String formatDateOptions(DateTime date) {
 
   // if less than 12 hours ago eg:
   // 3 hours
-  if (now.difference(date).inHours < 24) if (now.difference(date).inHours ==
-      1)
+  if (now.difference(date).inHours < 24) if (now.difference(date).inHours == 1)
     finalDate = now.difference(date).inHours.toString() + " hour";
   else
     finalDate = now.difference(date).inHours.toString() + " hours";
 
   // if less than an hour ago eg:
   // 5 mins
-  if (now.difference(date).inMinutes <
-      60) if (now.difference(date).inMinutes == 1)
+  if (now.difference(date).inMinutes < 60) if (now.difference(date).inMinutes ==
+      1)
     finalDate = now.difference(date).inMinutes.toString() + " min";
   else
     finalDate = now.difference(date).inMinutes.toString() + " mins";
