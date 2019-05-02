@@ -90,7 +90,9 @@ class _ChatroomState extends State<Chatroom> {
                                       Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: Text(
-                                          docSnap['message'],
+                                          docSnap['message'].length < 50 ?
+                                          docSnap['message'] :
+                                          docSnap['message'].substring(0,50) + "...",
                                         ),
                                       ),
                                       Row(
@@ -119,6 +121,14 @@ class _ChatroomState extends State<Chatroom> {
                                       )
                                     ],
                                   ),
+                                  onLongPress: () {
+                                    deleteMessage(
+                                        context,
+                                        "chats",
+                                        "messageID",
+                                        docSnap['userID'],
+                                        docSnap['messageID']);
+                                  },
                                 ),
                               );
                             });
@@ -219,4 +229,55 @@ String formatDateOptions(DateTime date) {
     finalDate = now.difference(date).inMinutes.toString() + " mins";
 
   return finalDate;
+}
+
+
+void deleteMessage(BuildContext context, String db, String id, String userID, String messageID) {
+  showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+            title: Text(
+              "Are you sure you want to delete this message?",
+              textAlign: TextAlign.center,
+            ),
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    FlatButton(
+                      child: Text("No"),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    RaisedButton(
+                      child: Text("Yes"),
+                      onPressed: () {
+                        Firestore.instance
+                            .collection(db)
+                            .where('userID', isEqualTo: userID)
+                            .where(id, isEqualTo: messageID)
+                            .limit(1)
+                            .getDocuments()
+                            .then((doc) {
+                          if (doc.documents.length > 0)
+                            Firestore.instance
+                                .collection(db)
+                                .document(doc.documents[0].documentID)
+                                .delete();
+                          else {
+                            print("error, no docs found");
+                          }
+                        });
+                        Navigator.pop(context);
+                      },
+                    )
+                  ],
+                ),
+              ),
+            ]);
+      });
 }

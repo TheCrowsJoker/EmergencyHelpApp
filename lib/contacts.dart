@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emergency_help/autoScrollText.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'main.dart';
 
@@ -57,16 +58,10 @@ class _ContactsState extends State<Contacts> {
                                 margin: new EdgeInsets.symmetric(
                                     horizontal: 10.0, vertical: 6.0),
                                 child: ListTile(
-                                  leading: Icon(Icons.person),
                                   title: Row(
                                     children: <Widget>[
                                       Text(
-                                        docSnap['name'].length < 8.0
-                                            ? docSnap['name']
-                                            : docSnap['name']
-                                                    .toString()
-                                                    .substring(0, 8) +
-                                                "...",
+                                        docSnap['name'],
                                         style: TextStyle(
                                           fontSize: 20.0,
                                           fontWeight: FontWeight.bold,
@@ -126,7 +121,7 @@ class _ContactsState extends State<Contacts> {
                 ),
               ),
             ),
-           Align(
+            Align(
               alignment: Alignment.bottomLeft,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -245,6 +240,9 @@ class _ContactsState extends State<Contacts> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextFormField(
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(10),
+                    ],
                     decoration: InputDecoration(labelText: 'Name'),
                     controller: _nameController,
                   ),
@@ -252,6 +250,9 @@ class _ContactsState extends State<Contacts> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextFormField(
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(10),
+                    ],
                     decoration: InputDecoration(labelText: 'Phone Number'),
                     controller: _phoneNumberController,
                     keyboardType: TextInputType.numberWithOptions(),

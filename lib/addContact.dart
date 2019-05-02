@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:sms/sms.dart';
 import 'package:uuid/uuid.dart';
 
@@ -47,10 +48,8 @@ class _AddContactState extends State<AddContact> {
         sendNotificationMessage();
       } else {
         errorDialog(context, contactExistsError);
-
       }
     });
-
   }
 
   @override
@@ -59,86 +58,93 @@ class _AddContactState extends State<AddContact> {
       appBar: AppBar(
         title: Text("Add Contact"),
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-            colors: [Colors.purple[400], Colors.purple[100]],
-          ),
-        ),
-        child: Stack(
-          children: <Widget>[
-            Column(
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextFormField(
-                    decoration: InputDecoration(labelText: 'Name'),
-                    controller: _nameController,
-                    textCapitalization: TextCapitalization.words,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextFormField(
-                    decoration: InputDecoration(labelText: 'Phone Number'),
-                    controller: _phoneNumberController,
-                    keyboardType: TextInputType.numberWithOptions(),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: <Widget>[
-                      FlatButton(
-                        child: Text("Cancel"),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                      RaisedButton(
-                        onPressed: () {
-                          _nameController.text.isNotEmpty &&
-                              _phoneNumberController.text.isNotEmpty
-                              ? updateDatabase(context)
-                              :
-                          // ignore: unnecessary_statements
-                          null;
-                        },
-                        color: Theme
-                            .of(context)
-                            .primaryColorLight,
-                        disabledColor: Colors.grey,
-                        child: Text(
-                          "Add",
-                          style: TextStyle(
-                            color: Theme
-                                .of(context)
-                                .primaryColor,
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                )
-              ],
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).requestFocus(FocusNode());
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topRight,
+              end: Alignment.bottomLeft,
+              colors: [Colors.purple[400], Colors.purple[100]],
             ),
-            Align(
-              alignment: Alignment.bottomLeft,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: FloatingActionButton(
-                  heroTag: 'homeBtn',
-                  child: Icon(Icons.home),
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/');
-                  },
+          ),
+          child: Stack(
+            children: <Widget>[
+              Column(
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextFormField(
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter(10),
+                      ],
+                      decoration: InputDecoration(labelText: 'Name'),
+                      controller: _nameController,
+                      textCapitalization: TextCapitalization.words,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextFormField(
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter(10),
+                      ],
+                      decoration: InputDecoration(labelText: 'Phone Number'),
+                      controller: _phoneNumberController,
+                      keyboardType: TextInputType.numberWithOptions(),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: <Widget>[
+                        FlatButton(
+                          child: Text("Cancel"),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                        RaisedButton(
+                          onPressed: () {
+                            _nameController.text.isNotEmpty &&
+                                    _phoneNumberController.text.isNotEmpty
+                                ? updateDatabase(context)
+                                :
+                                // ignore: unnecessary_statements
+                                null;
+                          },
+                          color: Theme.of(context).primaryColorLight,
+                          disabledColor: Colors.grey,
+                          child: Text(
+                            "Add",
+                            style: TextStyle(
+                              color: Theme.of(context).primaryColor,
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  )
+                ],
+              ),
+              Align(
+                alignment: Alignment.bottomLeft,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: FloatingActionButton(
+                    heroTag: 'homeBtn',
+                    child: Icon(Icons.home),
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/');
+                    },
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -146,8 +152,11 @@ class _AddContactState extends State<AddContact> {
 
   void sendNotificationMessage() async {
     String userPhoneNumber = await getUserDetail("phoneNumber", savedKey);
-    _message = "You have been added as a contact on " + appName + " by " +
-        userPhoneNumber + ". "
+    _message = "You have been added as a contact on " +
+        appName +
+        " by " +
+        userPhoneNumber +
+        ". "
         "This is an app that allows them to send you their "
         "location when they are in trouble.";
     _sender = new SmsSender();
