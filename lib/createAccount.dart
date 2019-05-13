@@ -62,11 +62,6 @@ class _CreateAccountState extends State<CreateAccount> {
                   controller: _phoneNumberController,
                   keyboardType: TextInputType.numberWithOptions(),
                 ),
-                TextFormField( // todo add password
-                  decoration: InputDecoration(
-                    labelText: 'Password (Currently unused)',
-                  ),
-                ),
                 Padding(
                   padding: const EdgeInsets.only(top: 20.0),
                   child: Row(

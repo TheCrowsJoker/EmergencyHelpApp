@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:emergency_help/splash.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sms/sms.dart';
@@ -317,6 +318,7 @@ class _MyAppState extends State<MyApp> {
         ),
         routes: {
           '/home': (context) => MyApp(),
+          '/createAccount': (context) => CreateAccount(),
           '/contacts': (context) => Contacts(),
           '/addContact': (context) => AddContact(),
           '/resources': (context) => Resources(),
@@ -434,7 +436,7 @@ class _MyAppState extends State<MyApp> {
                         ),
                       ));
                 } else {
-                  return CreateAccount();
+                  return Splash();
                 }
               }
             } else {
