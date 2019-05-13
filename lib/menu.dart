@@ -13,11 +13,22 @@ class Menu extends StatelessWidget {
             child: ListView(
               children: <Widget>[
                 DrawerHeader(
-                  // todo: Change this to the app logo when its been created
-                  child: Text("App logo will be here eventually\n"
-                      "For now, enjoy this poem extract by E.A. Poe:\n\n"
-                      "Years of love have been forgot,\n"
-                      "in the hatred of a minute"),
+                  padding: const EdgeInsets.all(0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.purple[100],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage('assets/logo.png'),
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
                 ),
                 ListTile(
                   leading: Icon(Icons.home),
@@ -55,24 +66,24 @@ class Menu extends StatelessWidget {
                   alignment: FractionalOffset.bottomCenter,
                   child: Container(
                       child: Column(
-                        children: <Widget>[
-                          Divider(),
-                          ListTile(
-                            leading: Icon(Icons.person),
-                            title: Text('Profile'),
-                            onTap: () {
-                              openPage(context, '/profile');
-                            },
-                          ),
-                          ListTile(
-                            leading: Icon(Icons.info),
-                            title: Text('About'),
-                            onTap: () {
-                              openPage(context, '/about');
-                            },
-                          )
-                        ],
-                      ))))
+                    children: <Widget>[
+                      Divider(),
+                      ListTile(
+                        leading: Icon(Icons.person),
+                        title: Text('Profile'),
+                        onTap: () {
+                          openPage(context, '/profile');
+                        },
+                      ),
+                      ListTile(
+                        leading: Icon(Icons.info),
+                        title: Text('About'),
+                        onTap: () {
+                          openPage(context, '/about');
+                        },
+                      )
+                    ],
+                  ))))
         ],
       ),
     );

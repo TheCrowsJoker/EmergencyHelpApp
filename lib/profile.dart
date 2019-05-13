@@ -214,6 +214,22 @@ class _ProfileState extends State<Profile> {
                           setState(() {
                             writeKey('0');
                             doesUserHaveAccount = false;
+
+                            Firestore.instance
+                                .collection('users')
+                                .where('id', isEqualTo: savedKey)
+                                .limit(1)
+                                .getDocuments()
+                                .then((doc) {
+                              if (doc.documents.length > 0)
+                                Firestore.instance
+                                    .collection('users')
+                                    .document(doc.documents[0].documentID)
+                                    .delete();
+                              else {
+                                print("error, no docs found");
+                              }
+                            });
                           });
                           Navigator.pop(context);
                           Navigator.pushReplacementNamed(context, '/');

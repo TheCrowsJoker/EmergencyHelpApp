@@ -19,10 +19,9 @@ import 'profile.dart';
 import 'about.dart';
 
 // Global variables that need to be accessed from other files
-String appName = "Emergency Help App";
+String appName = "code:PURPLE";
 String savedKey;
-// Set true by default so the login screen doesnt briefly appear every app launch
-bool doesUserHaveAccount = true;
+bool doesUserHaveAccount;
 
 void main() => runApp(MyApp());
 
@@ -92,9 +91,9 @@ class _MyAppState extends State<MyApp> {
     });
 
 //    Check if user has a key
-    _checkKey().then((result) => setState(() {
-          doesUserHaveAccount = result;
-        }));
+//    _checkKey().then((result) => setState(() {
+//          doesUserHaveAccount = result;
+//        }));
 //    Save key to variable for quicker reading
     readKey().then((result) => setState(() {
           savedKey = result;
@@ -183,7 +182,8 @@ class _MyAppState extends State<MyApp> {
 //    Store message in database too
     Firestore.instance.collection('moreInfoMessages').document().setData({
       'userID': savedKey,
-      'date': _date, // we dont reset the date so it is the same as the last message that was sent
+      'date': _date,
+      // we dont reset the date so it is the same as the last message that was sent
       'message': _message,
     });
   }
@@ -236,9 +236,7 @@ class _MyAppState extends State<MyApp> {
                 padding: const EdgeInsets.all(8.0),
                 child: TextFormField(
                   decoration: InputDecoration(
-                      labelText: 'Message',
-                      alignLabelWithHint: true
-                  ),
+                      labelText: 'Message', alignLabelWithHint: true),
                   controller: _controller,
                   maxLines: 5,
                   textCapitalization: TextCapitalization.sentences,
@@ -283,10 +281,11 @@ class _MyAppState extends State<MyApp> {
     _key = await readKey();
 
     if (_key != "0") {
-      return true;
+      doesUserHaveAccount = true;
     } else {
-      return false;
+      doesUserHaveAccount = false;
     }
+    return doesUserHaveAccount;
   }
 
   Future<List> getSelectedContactDetails(String detail) async {
@@ -326,15 +325,18 @@ class _MyAppState extends State<MyApp> {
           '/profile': (context) => Profile(),
           '/about': (context) => About(),
         },
-        home: doesUserHaveAccount == true
-            ? // If the user doesnt have an account, let them create one
-            Scaffold(
-                appBar: AppBar(
-                  title: Text(appName),
-                ),
-                drawer: Menu(),
-                body: Builder(
-                  builder: (context) => Container(
+        home: FutureBuilder(
+          future: _checkKey(),
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            if (snapshot.hasData) {
+              if (snapshot.data != null) {
+                if (doesUserHaveAccount == true) {
+                  return Scaffold(
+                      appBar: AppBar(
+                        title: Text(appName),
+                      ),
+                      drawer: Menu(),
+                      body: Container(
                         height: double.maxFinite,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
@@ -409,18 +411,20 @@ class _MyAppState extends State<MyApp> {
                                   child: OutlineButton(
                                     color: Theme.of(context).backgroundColor,
                                     child: Text(
-                                      !_timerRunning ?
-                                      "More Help...":
-                                      "Send now",
+                                      !_timerRunning
+                                          ? "More Help..."
+                                          : "Send now",
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 18.0,
                                       ),
                                     ),
                                     onPressed: () {
-                                      !_timerRunning ?
-                                      Navigator.pushNamed(context, '/resources') :
-                                      _timerValue = 0; // Used to send message straight away
+                                      !_timerRunning
+                                          ? Navigator.pushNamed(
+                                              context, '/resources')
+                                          : _timerValue =
+                                              0; // Used to send message straight away
                                     },
                                   ),
                                 ),
@@ -428,9 +432,26 @@ class _MyAppState extends State<MyApp> {
                             ),
                           ],
                         ),
-                      ),
-                ))
-            : CreateAccount());
+                      ));
+                } else {
+                  return CreateAccount();
+                }
+              }
+            } else {
+              return Container(
+                decoration: BoxDecoration(
+                  color: Colors.purple[100],
+                ),
+                child: Center(
+                  child: Image(
+                    image: AssetImage("assets/logo.png"),
+                    width: MediaQuery.of(context).size.width * 0.5,
+                  ),
+                ),
+              );
+            }
+          },
+        ));
   }
 
   Future<bool> selectedContacts() async {
