@@ -5,11 +5,17 @@ import 'package:uuid/uuid.dart';
 
 import 'main.dart';
 
-class CreateAccount extends StatelessWidget {
+class CreateAccount extends StatefulWidget {
+  @override
+  _CreateAccountState createState() => _CreateAccountState();
+}
+
+class _CreateAccountState extends State<CreateAccount> {
   final _usernameController = TextEditingController();
   final _phoneNumberController = TextEditingController();
 
   void dispose() {
+    super.dispose();
     _usernameController.dispose();
     _phoneNumberController.dispose();
   }
@@ -91,6 +97,8 @@ class CreateAccount extends StatelessWidget {
                             });
 
                             writeKey(id);
+
+                            readKey().then((result) => savedKey = result);
 
                             doesUserHaveAccount = true;
                             Navigator.pushNamed(context, '/contacts');

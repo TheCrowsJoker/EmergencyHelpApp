@@ -211,8 +211,10 @@ class _ProfileState extends State<Profile> {
                       RaisedButton(
                         child: Text("Yes"),
                         onPressed: () {
-                          writeKey('0');
-                          doesUserHaveAccount = false;
+                          setState(() {
+                            writeKey('0');
+                            doesUserHaveAccount = false;
+                          });
                           Navigator.pop(context);
                           Navigator.pushReplacementNamed(context, '/');
                         },
