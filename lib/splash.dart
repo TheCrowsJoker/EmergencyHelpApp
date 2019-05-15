@@ -30,7 +30,9 @@ class Splash extends StatelessWidget {
           ),
           FlatButton(
             child: Text("Already Have an Account"),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(context, '/login');
+            },
           )
         ],
       ),

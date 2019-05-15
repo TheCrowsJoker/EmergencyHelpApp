@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:emergency_help/login.dart';
 import 'package:emergency_help/splash.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -319,6 +320,7 @@ class _MyAppState extends State<MyApp> {
         routes: {
           '/home': (context) => MyApp(),
           '/createAccount': (context) => CreateAccount(),
+          '/login': (context) => Login(),
           '/contacts': (context) => Contacts(),
           '/addContact': (context) => AddContact(),
           '/resources': (context) => Resources(),

@@ -1,20 +1,17 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:emergency_help/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:uuid/uuid.dart';
 
-import 'main.dart';
-
-class CreateAccount extends StatefulWidget {
+class Login extends StatefulWidget {
   @override
-  _CreateAccountState createState() => _CreateAccountState();
+  _LoginState createState() => _LoginState();
 }
 
-class _CreateAccountState extends State<CreateAccount> {
-  String accountExists = "An account with this phone number already exists";
-
+class _LoginState extends State<Login> {
+  String doesntExist = "No account exists with this username and phone number";
   final _usernameController = TextEditingController();
   final _phoneNumberController = TextEditingController();
 
@@ -74,14 +71,14 @@ class _CreateAccountState extends State<CreateAccount> {
                       RaisedButton(
                         color: Theme.of(context).primaryColorLight,
                         child: Text(
-                          "Create Account",
+                          "Login",
                           style: TextStyle(
                             color: Theme.of(context).primaryColor,
                           ),
                         ),
                         onPressed: () {
                           if (_usernameController.text.isNotEmpty && _phoneNumberController.text.isNotEmpty) {
-                            setupAccount();
+                            accountLogin();
                           }
                         },
                       ),
@@ -96,37 +93,23 @@ class _CreateAccountState extends State<CreateAccount> {
     );
   }
 
-  Future setupAccount() async {
+  Future accountLogin() async {
     await Firestore.instance
         .collection('users')
         .where('phoneNumber', isEqualTo: _phoneNumberController.text)
+        .where('username', isEqualTo: _usernameController.text)
         .limit(1)
         .getDocuments()
         .then((doc) {
-      if (doc.documents.length == 0) {
-//        Create unique id for user
-        Uuid uuid = new Uuid();
-        String id = uuid.v1();
-
-        Firestore.instance
-            .collection('users')
-            .document()
-            .setData({
-          'id': id,
-          'username': _usernameController.text,
-          'phoneNumber': _phoneNumberController.text,
-          'dateJoined': Timestamp.now(),
-        });
-
-        writeKey(id);
-
+      if (doc.documents.length > 0) {
+        writeKey(doc.documents.first['id']);
         readKey().then((result) => savedKey = result);
 
         doesUserHaveAccount = true;
-
-        Navigator.pushNamed(context, '/contacts');
-      } else
-        errorDialog(context, accountExists);
+        Navigator.pushReplacementNamed(context, '/');
+      } else {
+        errorDialog(context, doesntExist);
+      }
     });
   }
 }

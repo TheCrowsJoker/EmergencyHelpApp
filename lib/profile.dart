@@ -80,7 +80,7 @@ class _ProfileState extends State<Profile> {
                                   LengthLimitingTextInputFormatter(10),
                                 ],
                                 decoration:
-                                    InputDecoration(labelText: 'Username'),
+                                InputDecoration(labelText: 'Username'),
                                 enabled: _editing,
                                 controller: _usernameController,
                                 textCapitalization: TextCapitalization.words,
@@ -88,7 +88,7 @@ class _ProfileState extends State<Profile> {
                               TextFormField(
 //                              initialValue: _phoneNumber,
                                 decoration:
-                                    InputDecoration(labelText: 'Phone Number'),
+                                InputDecoration(labelText: 'Phone Number'),
                                 enabled: _editing,
                                 keyboardType: TextInputType.numberWithOptions(),
                                 controller: _phoneNumberController,
@@ -96,8 +96,30 @@ class _ProfileState extends State<Profile> {
                               TextFormField(
                                 initialValue: docSnap['dateJoined'].toString(),
                                 decoration:
-                                    InputDecoration(labelText: 'Date Joined'),
+                                InputDecoration(labelText: 'Date Joined'),
                                 enabled: false,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: <Widget>[
+                                    ButtonTheme(
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                          BorderRadius.circular(10.0)),
+                                      height: 50.0,
+                                      child: OutlineButton(
+                                        child: Text(
+                                          "Logout",
+                                        ),
+                                        onPressed: () {
+                                          logout(context);
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                               Padding(
                                 padding: const EdgeInsets.only(top: 8.0),
@@ -110,15 +132,15 @@ class _ProfileState extends State<Profile> {
                                           BorderRadius.circular(10.0)),
                                       height: 50.0,
                                       child: _editing ?
-                                          OutlineButton(
-                                            child: Text(
-                                              "Delete Account",
-                                            ),
-                                            onPressed: () {
-                                              deleteAccount(context);
-                                            },
-                                          ) :
-                                          IgnorePointer(),
+                                      OutlineButton(
+                                        child: Text(
+                                          "Delete Account",
+                                        ),
+                                        onPressed: () {
+                                          deleteAccountDialog(context);
+                                        },
+                                      ) :
+                                      IgnorePointer(),
                                     ),
                                   ],
                                 ),
@@ -187,13 +209,71 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  void deleteAccount(BuildContext context) {
+  void deleteAccountDialog(BuildContext context) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
           return SimpleDialog(
               title: Text(
-                "Are you sure you want to delete your account",
+                "Are you sure you want to delete your account?",
+                textAlign: TextAlign.center,
+              ),
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      FlatButton(
+                        child: Text("No"),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                      RaisedButton(
+                        child: Text("Yes"),
+                        onPressed: () {
+                          setState(() {
+                            Firestore.instance
+                                .collection('users')
+                                .where('id', isEqualTo: savedKey)
+                                .limit(1)
+                                .getDocuments()
+                                .then((doc) {
+                              if (doc.documents.length > 0)
+                                Firestore.instance
+                                    .collection('users')
+                                    .document(doc.documents[0].documentID)
+                                    .delete();
+                              else {
+                                print("error, no docs found");
+                              }
+                            });
+                          });
+
+                          deleteMessages(context);
+
+                          writeKey('0');
+                          doesUserHaveAccount = false;
+
+                          Navigator.pop(context);
+                          Navigator.pushReplacementNamed(context, '/');
+                        },
+                      )
+                    ],
+                  ),
+                ),
+              ]);
+        });
+  }
+
+  void logout(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return SimpleDialog(
+              title: Text(
+                "Are you sure you want to logout?",
                 textAlign: TextAlign.center,
               ),
               children: <Widget>[
@@ -214,22 +294,6 @@ class _ProfileState extends State<Profile> {
                           setState(() {
                             writeKey('0');
                             doesUserHaveAccount = false;
-
-                            Firestore.instance
-                                .collection('users')
-                                .where('id', isEqualTo: savedKey)
-                                .limit(1)
-                                .getDocuments()
-                                .then((doc) {
-                              if (doc.documents.length > 0)
-                                Firestore.instance
-                                    .collection('users')
-                                    .document(doc.documents[0].documentID)
-                                    .delete();
-                              else {
-                                print("error, no docs found");
-                              }
-                            });
                           });
                           Navigator.pop(context);
                           Navigator.pushReplacementNamed(context, '/');
@@ -239,9 +303,71 @@ class _ProfileState extends State<Profile> {
                   ),
                 ),
               ]);
-        });
+        }
+    );
   }
 
+  void deleteMessages(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return SimpleDialog(
+              title: Text(
+                "Would you like to delete all information associated with this account?",
+                textAlign: TextAlign.center,
+              ),
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      FlatButton(
+                        child: Text("No"),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                      RaisedButton(
+                        child: Text("Yes"),
+                        onPressed: () {
+                          // messages
+                          deleteInfo('message', 'userID');
+                          // chats
 
+                          // replies
 
+                          // moreinfomessages
+
+                          // contacts
+
+                          Navigator.pop(context);
+                        },
+                      )
+                    ],
+                  ),
+                ),
+              ]);
+        }
+    );
+  }
+
+  void deleteInfo(String db, String userID) {
+    Firestore.instance
+        .collection(db)
+        .where(userID, isEqualTo: savedKey)
+        .getDocuments()
+        .then((doc) {
+      if (doc.documents.length > 0)
+        for (int i = 0; i < doc.documents.length; i++) {
+          Firestore.instance
+              .collection(db)
+              .document(doc.documents[i].documentID)
+              .delete();
+        }
+      else {
+        print("error, no docs found");
+      }
+    });
+  }
 }
