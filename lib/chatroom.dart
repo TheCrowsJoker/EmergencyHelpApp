@@ -1,12 +1,14 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:emergency_help/autoScrollText.dart';
 import 'package:emergency_help/main.dart';
 import 'package:emergency_help/replies.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:date_format/date_format.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:sms/sms.dart';
 
 class Chatroom extends StatefulWidget {
   @override
@@ -122,12 +124,7 @@ class _ChatroomState extends State<Chatroom> {
                                     ],
                                   ),
                                   onLongPress: () {
-                                    deleteMessage(
-                                        context,
-                                        "chats",
-                                        "messageID",
-                                        docSnap['userID'],
-                                        docSnap['messageID']);
+                                    moreOptions(context, docSnap['userID'], docSnap['messageID'], null, docSnap['sender'], docSnap['message'], docSnap['dateSent'], docSnap['likes']);
                                   },
                                 ),
                               );
@@ -177,6 +174,185 @@ class _ChatroomState extends State<Chatroom> {
       ),
     );
   }
+}
+
+void moreOptions(BuildContext context, String userID, String messageID, String replyID, String sender, String message, DateTime dateSent, List likes) {
+  showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+            title: Text(
+              "More Options...",
+              textAlign: TextAlign.center,
+            ),
+            children: <Widget>[
+              FlatButton(
+                child: Text("Details"),
+                onPressed: () {
+                  messageDetails(context, messageID, userID, replyID, sender, message, dateSent, likes);
+                },
+              ),
+              FlatButton(
+                child: Text("Report"),
+                onPressed: () {
+                  reportMessage(context, messageID, userID, dateSent);
+                },
+              ),
+              userID == savedKey ?
+                FlatButton(
+                  child: Text("Delete"),
+                  onPressed: () {
+                    deleteMessage(
+                        context,
+                        "chats",
+                        "messageID",
+                        userID,
+                        messageID);
+                  },
+                ) : IgnorePointer(),
+            ]);
+      });
+}
+
+void messageDetails(BuildContext context, String messageID, String userID, String replyID, String sender, String message, DateTime dateSent, List likes) {
+  showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+            title: Text(
+              "Message Details",
+              textAlign: TextAlign.center,
+            ),
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: <Widget>[
+                    messageID != null ?
+                      Row(
+                        children: <Widget>[
+                          Text(
+                            "Message ID: ",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          AutoScrollText(
+                            items: <Widget>[
+                              Text(
+                                messageID,
+                              ),
+                            ],
+                          )
+                        ],
+                      ) : IgnorePointer(),
+                    userID != null ?
+                      Row(
+                        children: <Widget>[
+                          Text(
+                            "User ID: ",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          AutoScrollText(
+                            items: <Widget>[
+                              Text(
+                                userID,
+                              ),
+                            ],
+                          )
+                        ],
+                      ) : IgnorePointer(),
+                    replyID != null ?
+                      Row(
+                        children: <Widget>[
+                          Text(
+                            "Reply ID: ",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          AutoScrollText(
+                            items: <Widget>[
+                              Text(
+                                replyID,
+                              ),
+                            ],
+                          )
+                        ],
+                      ) : IgnorePointer(),
+                    sender != null ?
+                      Row(
+                        children: <Widget>[
+                          Text(
+                            "Sender: ",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(sender),
+                        ],
+                      ) : IgnorePointer(),
+                    dateSent != null ?
+                      Row(
+                        children: <Widget>[
+                          Text(
+                            "Date sent: ",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(dateSent.toString()),
+                        ],
+                      ) : IgnorePointer(),
+                    likes != null ?
+                      Row(
+                        children: <Widget>[
+                          Text(
+                            "Likes: ",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(likes.length.toString()),
+                        ],
+                      ) : IgnorePointer(),
+                    message != null ?
+                      Row(
+                        children: <Widget>[
+                          Text(
+                            "Message: ",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          message.length > 30 ?
+                            AutoScrollText(
+                              items: <Widget>[
+                                Text(
+                                  message,
+                                ),
+                              ],
+                            ) : Text(message),
+                        ],
+                      ): IgnorePointer(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: <Widget>[
+                        RaisedButton(
+                          child: Text("Close"),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ]);
+      });
 }
 
 Future likeMessage(String id) async {
@@ -231,7 +407,6 @@ String formatDateOptions(DateTime date) {
   return finalDate;
 }
 
-
 void deleteMessage(BuildContext context, String db, String id, String userID, String messageID) {
   showDialog(
       context: context,
@@ -272,6 +447,46 @@ void deleteMessage(BuildContext context, String db, String id, String userID, St
                             print("error, no docs found");
                           }
                         });
+                        Navigator.pop(context);
+                      },
+                    )
+                  ],
+                ),
+              ),
+            ]);
+      });
+}
+
+Future reportMessage(BuildContext context, String messageID, String userID, DateTime dateSent) async {
+  showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+            title: Text(
+              "Are you sure you want to report this message?",
+              textAlign: TextAlign.center,
+            ),
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    FlatButton(
+                      child: Text("No"),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    RaisedButton(
+                      child: Text("Yes"),
+                      onPressed: () async {
+                        String phoneNumber = await getUserDetail("phoneNumber", userID);
+                        String _message = "A user has reported your message sent at: " + dateSent.toString() + " to be inappropriate. Please review this message and remove or edit it.";
+
+                        SmsSender _sender = new SmsSender();
+                        _sender.sendSms(new SmsMessage(phoneNumber, _message));
+
                         Navigator.pop(context);
                       },
                     )

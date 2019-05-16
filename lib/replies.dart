@@ -136,12 +136,7 @@ class _RepliesState extends State<Replies> {
                                               FocusScope.of(context).requestFocus(FocusNode());
                                             },
                                             onLongPress: () {
-                                              deleteMessage(
-                                                  context,
-                                                  "chats",
-                                                  "messageID",
-                                                  docSnap['userID'],
-                                                  docSnap['messageID']);
+                                              moreOptions(context, docSnap['userID'], docSnap['messageID'], docSnap['replyID'], docSnap['sender'], docSnap['message'], docSnap['dateSent'], docSnap['likes']);
                                             },
                                           ),
                                         ),
@@ -321,12 +316,7 @@ class _RepliesState extends State<Replies> {
                                         ],
                                       ),
                                       onLongPress: () {
-                                        deleteMessage(
-                                            context,
-                                            "replies",
-                                            "replyID",
-                                            docSnap['userID'],
-                                            docSnap['replyID']);
+                                        moreOptions(context, docSnap['userID'], docSnap['messageID'], docSnap['replyID'], docSnap['sender'], docSnap['message'], docSnap['dateSent'], null);
                                       },
                                     ),
                                   );

@@ -43,7 +43,7 @@ class _AutoScrollTextState extends State<AutoScrollText>
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 220.0,
+      width: 150.0,
       height: widget.height,
       padding: EdgeInsets.all(4.0),
       child: Center(
