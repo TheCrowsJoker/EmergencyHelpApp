@@ -20,6 +20,9 @@ class _ProfileState extends State<Profile> {
   String _username;
   String _phoneNumber;
 
+//  Used to show which info was deleted
+  List resultList = [];
+
   @override
   void dispose() {
     _usernameController.dispose();
@@ -122,7 +125,31 @@ class _ProfileState extends State<Profile> {
                                 ),
                               ),
                               Padding(
-                                padding: const EdgeInsets.only(top: 8.0),
+                                padding: const EdgeInsets.all(8.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: <Widget>[
+                                    ButtonTheme(
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                          BorderRadius.circular(10.0)),
+                                      height: 50.0,
+                                      child: _editing ?
+                                      OutlineButton(
+                                        child: Text(
+                                          "Delete Info",
+                                        ),
+                                        onPressed: () {
+                                          deleteMessages(context);
+                                        },
+                                      ) :
+                                      IgnorePointer(),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: <Widget>[
@@ -221,6 +248,10 @@ class _ProfileState extends State<Profile> {
               children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.all(8.0),
+                  child: Text("You may want to delete your information first. Account deleteion cannot be undone"),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: <Widget>[
@@ -250,8 +281,6 @@ class _ProfileState extends State<Profile> {
                               }
                             });
                           });
-
-                          deleteMessages(context);
 
                           writeKey('0');
                           doesUserHaveAccount = false;
@@ -310,7 +339,7 @@ class _ProfileState extends State<Profile> {
   void deleteMessages(BuildContext context) {
     showDialog(
         context: context,
-        builder: (BuildContext context) {
+        builder: (BuildContext dialogContext) {
           return SimpleDialog(
               title: Text(
                 "Would you like to delete all information associated with this account?",
@@ -325,23 +354,36 @@ class _ProfileState extends State<Profile> {
                       FlatButton(
                         child: Text("No"),
                         onPressed: () {
-                          Navigator.pop(context);
+                          Navigator.pop(dialogContext);
                         },
                       ),
                       RaisedButton(
                         child: Text("Yes"),
                         onPressed: () {
+                          resultList.clear(); // clear resultlist
                           // messages
-                          deleteInfo('message', 'userID');
+                          deleteInfo('message');
                           // chats
-
+                          deleteInfo('chats');
                           // replies
-
+                          deleteInfo('replies');
                           // moreinfomessages
-
+                          deleteInfo('moreInfoMessages');
                           // contacts
+                          deleteInfo('contacts');
 
-                          Navigator.pop(context);
+                          Navigator.pop(dialogContext);
+
+                          final snackBar = SnackBar(
+                            content: Text('Info Deleted'),
+                            action: SnackBarAction(
+                              label: 'Details',
+                              onPressed: () {
+                                deletionResults(context);
+                              },
+                            ),
+                          );
+                          Scaffold.of(context).showSnackBar(snackBar);
                         },
                       )
                     ],
@@ -352,22 +394,64 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  void deleteInfo(String db, String userID) {
+  void deleteInfo(String db) {
+    String string;
     Firestore.instance
         .collection(db)
-        .where(userID, isEqualTo: savedKey)
+        .where("userID", isEqualTo: savedKey)
         .getDocuments()
         .then((doc) {
-      if (doc.documents.length > 0)
+      if (doc.documents.length > 0) {
         for (int i = 0; i < doc.documents.length; i++) {
           Firestore.instance
               .collection(db)
               .document(doc.documents[i].documentID)
               .delete();
         }
-      else {
-        print("error, no docs found");
+        string = db + ": Deleted " + doc.documents.length.toString() + " documents";
+      } else {
+        string = db + ": Nothing found";
+        print("error, no docs found in " + db);
       }
+      resultList.add(string);
     });
+  }
+
+  void deletionResults(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (BuildContext dialogContext) {
+          return SimpleDialog(
+              title: Text(
+                "Results",
+                textAlign: TextAlign.center,
+              ),
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ListView.builder(shrinkWrap: true,
+                      itemCount: resultList.length,
+                      itemBuilder: (BuildContext ctxt, int index) {
+                        return Text(resultList[index]);
+                      }
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      OutlineButton(
+                        child: Text("Close"),
+                        onPressed: () {
+                          Navigator.pop(dialogContext);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ]);
+        }
+    );
   }
 }
