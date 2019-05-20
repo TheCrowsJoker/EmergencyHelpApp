@@ -46,7 +46,7 @@ class Menu extends StatelessWidget {
                 ),
                 ListTile(
                   leading: Icon(Icons.map),
-                  title: Text('Map / List'),
+                  title: Text('Resources'),
                   onTap: () {
                     openPage(context, '/resources');
                   },

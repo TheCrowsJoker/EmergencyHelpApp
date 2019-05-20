@@ -92,9 +92,11 @@ class _ChatroomState extends State<Chatroom> {
                                       Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: Text(
-                                          docSnap['message'].length < 50 ?
-                                          docSnap['message'] :
-                                          docSnap['message'].substring(0,50) + "...",
+                                          docSnap['message'].length < 50
+                                              ? docSnap['message']
+                                              : docSnap['message']
+                                                      .substring(0, 50) +
+                                                  "...",
                                         ),
                                       ),
                                       Row(
@@ -124,7 +126,15 @@ class _ChatroomState extends State<Chatroom> {
                                     ],
                                   ),
                                   onLongPress: () {
-                                    moreOptions(context, docSnap['userID'], docSnap['messageID'], null, docSnap['sender'], docSnap['message'], docSnap['dateSent'], docSnap['likes']);
+                                    moreOptions(
+                                        context,
+                                        docSnap['userID'],
+                                        docSnap['messageID'],
+                                        null,
+                                        docSnap['sender'],
+                                        docSnap['message'],
+                                        docSnap['dateSent'],
+                                        docSnap['likes']);
                                   },
                                 ),
                               );
@@ -176,7 +186,15 @@ class _ChatroomState extends State<Chatroom> {
   }
 }
 
-void moreOptions(BuildContext context, String userID, String messageID, String replyID, String sender, String message, DateTime dateSent, List likes) {
+void moreOptions(
+    BuildContext context,
+    String userID,
+    String messageID,
+    String replyID,
+    String sender,
+    String message,
+    DateTime dateSent,
+    List likes) {
   showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -189,32 +207,39 @@ void moreOptions(BuildContext context, String userID, String messageID, String r
               FlatButton(
                 child: Text("Details"),
                 onPressed: () {
-                  messageDetails(context, messageID, userID, replyID, sender, message, dateSent, likes);
+                  messageDetails(context, messageID, userID, replyID, sender,
+                      message, dateSent, likes);
                 },
               ),
-              FlatButton(
-                child: Text("Report"),
-                onPressed: () {
-                  reportMessage(context, messageID, userID, dateSent);
-                },
-              ),
-              userID == savedKey ?
+              userID != savedKey ?
                 FlatButton(
-                  child: Text("Delete"),
+                  child: Text("Report"),
                   onPressed: () {
-                    deleteMessage(
-                        context,
-                        "chats",
-                        "messageID",
-                        userID,
-                        messageID);
+                    reportMessage(context, messageID, userID, dateSent);
                   },
                 ) : IgnorePointer(),
+              userID == savedKey
+                  ? FlatButton(
+                      child: Text("Delete"),
+                      onPressed: () {
+                        deleteMessage(
+                            context, "chats", "messageID", userID, messageID);
+                      },
+                    )
+                  : IgnorePointer(),
             ]);
       });
 }
 
-void messageDetails(BuildContext context, String messageID, String userID, String replyID, String sender, String message, DateTime dateSent, List likes) {
+void messageDetails(
+    BuildContext context,
+    String messageID,
+    String userID,
+    String replyID,
+    String sender,
+    String message,
+    DateTime dateSent,
+    List likes) {
   showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -228,115 +253,123 @@ void messageDetails(BuildContext context, String messageID, String userID, Strin
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
                   children: <Widget>[
-                    messageID != null ?
-                      Row(
-                        children: <Widget>[
-                          Text(
-                            "Message ID: ",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          AutoScrollText(
-                            items: <Widget>[
+                    messageID != null
+                        ? Row(
+                            children: <Widget>[
                               Text(
-                                messageID,
-                              ),
-                            ],
-                          )
-                        ],
-                      ) : IgnorePointer(),
-                    userID != null ?
-                      Row(
-                        children: <Widget>[
-                          Text(
-                            "User ID: ",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          AutoScrollText(
-                            items: <Widget>[
-                              Text(
-                                userID,
-                              ),
-                            ],
-                          )
-                        ],
-                      ) : IgnorePointer(),
-                    replyID != null ?
-                      Row(
-                        children: <Widget>[
-                          Text(
-                            "Reply ID: ",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          AutoScrollText(
-                            items: <Widget>[
-                              Text(
-                                replyID,
-                              ),
-                            ],
-                          )
-                        ],
-                      ) : IgnorePointer(),
-                    sender != null ?
-                      Row(
-                        children: <Widget>[
-                          Text(
-                            "Sender: ",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(sender),
-                        ],
-                      ) : IgnorePointer(),
-                    dateSent != null ?
-                      Row(
-                        children: <Widget>[
-                          Text(
-                            "Date sent: ",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(dateSent.toString()),
-                        ],
-                      ) : IgnorePointer(),
-                    likes != null ?
-                      Row(
-                        children: <Widget>[
-                          Text(
-                            "Likes: ",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(likes.length.toString()),
-                        ],
-                      ) : IgnorePointer(),
-                    message != null ?
-                      Row(
-                        children: <Widget>[
-                          Text(
-                            "Message: ",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          message.length > 30 ?
-                            AutoScrollText(
-                              items: <Widget>[
-                                Text(
-                                  message,
+                                "Message ID: ",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
                                 ),
-                              ],
-                            ) : Text(message),
-                        ],
-                      ): IgnorePointer(),
+                              ),
+                              AutoScrollText(
+                                items: <Widget>[
+                                  Text(
+                                    messageID,
+                                  ),
+                                ],
+                              )
+                            ],
+                          )
+                        : IgnorePointer(),
+                    userID != null
+                        ? Row(
+                            children: <Widget>[
+                              Text(
+                                "User ID: ",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              AutoScrollText(
+                                items: <Widget>[
+                                  Text(
+                                    userID,
+                                  ),
+                                ],
+                              )
+                            ],
+                          )
+                        : IgnorePointer(),
+                    replyID != null
+                        ? Row(
+                            children: <Widget>[
+                              Text(
+                                "Reply ID: ",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              AutoScrollText(
+                                items: <Widget>[
+                                  Text(
+                                    replyID,
+                                  ),
+                                ],
+                              )
+                            ],
+                          )
+                        : IgnorePointer(),
+                    sender != null
+                        ? Row(
+                            children: <Widget>[
+                              Text(
+                                "Sender: ",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(sender),
+                            ],
+                          )
+                        : IgnorePointer(),
+                    dateSent != null
+                        ? Row(
+                            children: <Widget>[
+                              Text(
+                                "Date sent: ",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(dateSent.toString()),
+                            ],
+                          )
+                        : IgnorePointer(),
+                    likes != null
+                        ? Row(
+                            children: <Widget>[
+                              Text(
+                                "Likes: ",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(likes.length.toString()),
+                            ],
+                          )
+                        : IgnorePointer(),
+                    message != null
+                        ? Row(
+                            children: <Widget>[
+                              Text(
+                                "Message: ",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              message.length > 30
+                                  ? AutoScrollText(
+                                      items: <Widget>[
+                                        Text(
+                                          message,
+                                        ),
+                                      ],
+                                    )
+                                  : Text(message),
+                            ],
+                          )
+                        : IgnorePointer(),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: <Widget>[
@@ -407,7 +440,8 @@ String formatDateOptions(DateTime date) {
   return finalDate;
 }
 
-void deleteMessage(BuildContext context, String db, String id, String userID, String messageID) {
+void deleteMessage(BuildContext context, String db, String id, String userID,
+    String messageID) {
   showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -457,7 +491,8 @@ void deleteMessage(BuildContext context, String db, String id, String userID, St
       });
 }
 
-Future reportMessage(BuildContext context, String messageID, String userID, DateTime dateSent) async {
+Future reportMessage(BuildContext context, String messageID, String userID,
+    DateTime dateSent) async {
   showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -481,8 +516,12 @@ Future reportMessage(BuildContext context, String messageID, String userID, Date
                     RaisedButton(
                       child: Text("Yes"),
                       onPressed: () async {
-                        String phoneNumber = await getUserDetail("phoneNumber", userID);
-                        String _message = "A user has reported your message sent at: " + dateSent.toString() + " to be inappropriate. Please review this message and remove or edit it.";
+                        String phoneNumber =
+                            await getUserDetail("phoneNumber", userID);
+                        String _message =
+                            "A user has reported your message sent at: " +
+                                dateSent.toString() +
+                                " to be inappropriate. Please review this message and remove or edit it.";
 
                         SmsSender _sender = new SmsSender();
                         _sender.sendSms(new SmsMessage(phoneNumber, _message));

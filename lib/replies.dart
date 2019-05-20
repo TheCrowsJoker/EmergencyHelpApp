@@ -82,14 +82,16 @@ class _RepliesState extends State<Replies> {
                                                       docSnap['sender'],
                                                       style: TextStyle(
                                                         fontSize: 20.0,
-                                                        fontWeight: FontWeight.bold,
+                                                        fontWeight:
+                                                            FontWeight.bold,
                                                       ),
                                                     ),
                                                     Text(
                                                       formatDateOptions(
                                                           docSnap['dateSent']),
                                                       style: TextStyle(
-                                                        fontWeight: FontWeight.w300,
+                                                        fontWeight:
+                                                            FontWeight.w300,
                                                       ),
                                                     ),
                                                   ],
@@ -111,20 +113,24 @@ class _RepliesState extends State<Replies> {
                                                               .toString() +
                                                           " Likes",
                                                       style: TextStyle(
-                                                        fontWeight: FontWeight.w300,
+                                                        fontWeight:
+                                                            FontWeight.w300,
                                                         fontSize: 13.0,
                                                       ),
                                                     ),
                                                     IconButton(
                                                       icon: docSnap['likes']
-                                                              .contains(savedKey)
-                                                          ? Icon(FontAwesomeIcons
-                                                              .solidHeart)
-                                                          : Icon(FontAwesomeIcons
-                                                              .heart),
+                                                              .contains(
+                                                                  savedKey)
+                                                          ? Icon(
+                                                              FontAwesomeIcons
+                                                                  .solidHeart)
+                                                          : Icon(
+                                                              FontAwesomeIcons
+                                                                  .heart),
                                                       onPressed: () {
-                                                        likeMessage(
-                                                            docSnap['messageID']);
+                                                        likeMessage(docSnap[
+                                                            'messageID']);
                                                       },
                                                     ),
                                                   ],
@@ -133,10 +139,19 @@ class _RepliesState extends State<Replies> {
                                             ),
                                             onTap: () {
                                               // Close keyboard
-                                              FocusScope.of(context).requestFocus(FocusNode());
+                                              FocusScope.of(context)
+                                                  .requestFocus(FocusNode());
                                             },
                                             onLongPress: () {
-                                              moreOptions(context, docSnap['userID'], docSnap['messageID'], docSnap['replyID'], docSnap['sender'], docSnap['message'], docSnap['dateSent'], docSnap['likes']);
+                                              moreOptions(
+                                                  context,
+                                                  docSnap['userID'],
+                                                  docSnap['messageID'],
+                                                  docSnap['replyID'],
+                                                  docSnap['sender'],
+                                                  docSnap['message'],
+                                                  docSnap['dateSent'],
+                                                  docSnap['likes']);
                                             },
                                           ),
                                         ),
@@ -147,11 +162,12 @@ class _RepliesState extends State<Replies> {
                                             minWidth: double.infinity,
                                             shape: RoundedRectangleBorder(
                                                 borderRadius:
-                                                    BorderRadius.circular(10.0)),
+                                                    BorderRadius.circular(
+                                                        10.0)),
                                             height: 50.0,
                                             child: OutlineButton(
-                                              color:
-                                                  Theme.of(context).backgroundColor,
+                                              color: Theme.of(context)
+                                                  .backgroundColor,
                                               child: Text(
                                                 "View Replies",
                                                 style: TextStyle(
@@ -192,12 +208,12 @@ class _RepliesState extends State<Replies> {
                           decoration: InputDecoration(
                               labelText: 'Reply',
                               focusedBorder: OutlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: Colors.purple, width: 1.0),
+                                borderSide: BorderSide(
+                                    color: Colors.purple, width: 1.0),
                               ),
                               enabledBorder: OutlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: Colors.purple, width: 1.0),
+                                borderSide: BorderSide(
+                                    color: Colors.purple, width: 1.0),
                               ),
                               suffixIcon: IconButton(
                                 icon: Icon(Icons.send),
@@ -316,7 +332,15 @@ class _RepliesState extends State<Replies> {
                                         ],
                                       ),
                                       onLongPress: () {
-                                        moreOptions(context, docSnap['userID'], docSnap['messageID'], docSnap['replyID'], docSnap['sender'], docSnap['message'], docSnap['dateSent'], null);
+                                        moreOptions(
+                                            context,
+                                            docSnap['userID'],
+                                            docSnap['messageID'],
+                                            docSnap['replyID'],
+                                            docSnap['sender'],
+                                            docSnap['message'],
+                                            docSnap['dateSent'],
+                                            null);
                                       },
                                     ),
                                   );

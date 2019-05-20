@@ -53,22 +53,44 @@ class _ResourcesState extends State<Resources> {
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
+                                      docSnap['desc'] != null
+                                          ? Text(
+                                        docSnap['desc'],
+                                        textAlign: TextAlign.center,
+                                      )
+                                          : IgnorePointer(),
+                                      docSnap['locationString'] != null
+                                          ? Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 8.0),
+                                              child: Text(
+                                                "Location:",
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            )
+                                          : IgnorePointer(),
                                       docSnap['locationString'] != null
                                           ? Text(
                                               docSnap['locationString'],
                                               textAlign: TextAlign.center,
                                             )
                                           : IgnorePointer(),
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(top: 8.0),
-                                        child: Text(
-                                          "Phone Numbers:",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
+                                      !(docSnap['phone1'] == null &&
+                                              docSnap['phone2'] == null &&
+                                              docSnap['phone3'] == null)
+                                          ? Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 8.0),
+                                              child: Text(
+                                                "Phone Numbers:",
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            )
+                                          : IgnorePointer(),
                                       docSnap['phone1'] != null
                                           ? Text(
                                               docSnap['phone1'],
@@ -122,7 +144,14 @@ class _ResourcesState extends State<Resources> {
                                   ),
                                   onLongPress: () {
                                     GeoPoint geopoint = docSnap['location'];
-                                    moreOptions(context, docSnap['id'], docSnap['phone1'], docSnap['phone2'], docSnap['email'], docSnap['website'], geopoint);
+                                    moreOptions(
+                                        context,
+                                        docSnap['id'],
+                                        docSnap['phone1'],
+                                        docSnap['phone2'],
+                                        docSnap['email'],
+                                        docSnap['website'],
+                                        geopoint);
                                   },
                                 ),
                               );
@@ -160,7 +189,8 @@ class _ResourcesState extends State<Resources> {
     );
   }
 
-  void moreOptions(BuildContext context, String id, String phone1, String phone2, String email, String website, GeoPoint geopoint) {
+  void moreOptions(BuildContext context, String id, String phone1,
+      String phone2, String email, String website, GeoPoint geopoint) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -170,42 +200,50 @@ class _ResourcesState extends State<Resources> {
                 textAlign: TextAlign.center,
               ),
               children: <Widget>[
-                geopoint != null ?
-                  FlatButton(
-                    child: Text("Show on map"),
-                    onPressed: () {
-                      String url = "https://maps.google.com/maps/?q=" + geopoint.latitude.toString() + "," + geopoint.longitude.toString();
-                      launch(url);
-                    },
-                  ) : IgnorePointer(),
-                phone2 != null ?
-                  FlatButton(
-                    child: Text("Call phone 1"),
-                    onPressed: () {
-                      launch("tel:" + phone1);
-                    },
-                  ) : IgnorePointer(),
-                phone2 != null ?
-                  FlatButton(
-                    child: Text("Call phone 2"),
-                    onPressed: () {
-                      launch("tel:" + phone2);
-                    },
-                  ) : IgnorePointer(),
-                email != null ?
-                  FlatButton(
-                    child: Text("Email"),
-                    onPressed: () {
-                      launch("mailto:" + email);
-                    },
-                  ) : IgnorePointer(),
-                website != null ?
-                  FlatButton(
-                    child: Text("Open website"),
-                    onPressed: () {
-                      launch(website);
-                    },
-                  ) : IgnorePointer(),
+                geopoint != null
+                    ? FlatButton(
+                        child: Text("Show on map"),
+                        onPressed: () {
+                          String url = "https://maps.google.com/maps/?q=" +
+                              geopoint.latitude.toString() +
+                              "," +
+                              geopoint.longitude.toString();
+                          launch(url);
+                        },
+                      )
+                    : IgnorePointer(),
+                phone2 != null
+                    ? FlatButton(
+                        child: Text("Call phone 1"),
+                        onPressed: () {
+                          launch("tel:" + phone1);
+                        },
+                      )
+                    : IgnorePointer(),
+                phone2 != null
+                    ? FlatButton(
+                        child: Text("Call phone 2"),
+                        onPressed: () {
+                          launch("tel:" + phone2);
+                        },
+                      )
+                    : IgnorePointer(),
+                email != null
+                    ? FlatButton(
+                        child: Text("Email"),
+                        onPressed: () {
+                          launch("mailto:" + email);
+                        },
+                      )
+                    : IgnorePointer(),
+                website != null
+                    ? FlatButton(
+                        child: Text("Open website"),
+                        onPressed: () {
+                          launch(website);
+                        },
+                      )
+                    : IgnorePointer(),
               ]);
         });
   }
