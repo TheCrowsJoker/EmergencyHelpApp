@@ -1,16 +1,16 @@
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:emergency_help/chatroom.dart';
-import 'package:emergency_help/main.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:uuid/uuid.dart';
 
-class Replies extends StatefulWidget {
-  final id;
+import 'sharedFunctions.dart';
+import 'main.dart';
 
-  Replies(this.id);
+class Replies extends StatefulWidget {
+  final _id;
+
+  Replies(this._id);
 
   @override
   _RepliesState createState() => _RepliesState();
@@ -51,7 +51,7 @@ class _RepliesState extends State<Replies> {
                     child: StreamBuilder(
                         stream: Firestore.instance
                             .collection('chats')
-                            .where('messageID', isEqualTo: widget.id)
+                            .where('messageID', isEqualTo: widget._id)
                             .limit(1)
                             .snapshots(),
                         builder: (context, snapshot) {
@@ -61,7 +61,7 @@ class _RepliesState extends State<Replies> {
                                   shrinkWrap: true,
                                   itemCount: snapshot.data.documents.length,
                                   itemBuilder: (context, index) {
-                                    DocumentSnapshot docSnap =
+                                    DocumentSnapshot _docSnap =
                                         snapshot.data.documents[index];
                                     return Column(
                                       children: <Widget>[
@@ -79,7 +79,7 @@ class _RepliesState extends State<Replies> {
                                                           .spaceBetween,
                                                   children: <Widget>[
                                                     Text(
-                                                      docSnap['sender'],
+                                                      _docSnap['sender'],
                                                       style: TextStyle(
                                                         fontSize: 20.0,
                                                         fontWeight:
@@ -88,7 +88,7 @@ class _RepliesState extends State<Replies> {
                                                     ),
                                                     Text(
                                                       formatDateOptions(
-                                                          docSnap['dateSent']),
+                                                          _docSnap['dateSent']),
                                                       style: TextStyle(
                                                         fontWeight:
                                                             FontWeight.w300,
@@ -100,7 +100,7 @@ class _RepliesState extends State<Replies> {
                                                   padding:
                                                       const EdgeInsets.all(8.0),
                                                   child: Text(
-                                                    docSnap['message'],
+                                                    _docSnap['message'],
                                                   ),
                                                 ),
                                                 Row(
@@ -108,7 +108,7 @@ class _RepliesState extends State<Replies> {
                                                       MainAxisAlignment.end,
                                                   children: <Widget>[
                                                     Text(
-                                                      docSnap['likes']
+                                                      _docSnap['likes']
                                                               .length
                                                               .toString() +
                                                           " Likes",
@@ -119,7 +119,7 @@ class _RepliesState extends State<Replies> {
                                                       ),
                                                     ),
                                                     IconButton(
-                                                      icon: docSnap['likes']
+                                                      icon: _docSnap['likes']
                                                               .contains(
                                                                   savedKey)
                                                           ? Icon(
@@ -129,7 +129,7 @@ class _RepliesState extends State<Replies> {
                                                               FontAwesomeIcons
                                                                   .heart),
                                                       onPressed: () {
-                                                        likeMessage(docSnap[
+                                                        likeMessage(_docSnap[
                                                             'messageID']);
                                                       },
                                                     ),
@@ -145,13 +145,13 @@ class _RepliesState extends State<Replies> {
                                             onLongPress: () {
                                               moreOptions(
                                                   context,
-                                                  docSnap['userID'],
-                                                  docSnap['messageID'],
-                                                  docSnap['replyID'],
-                                                  docSnap['sender'],
-                                                  docSnap['message'],
-                                                  docSnap['dateSent'],
-                                                  docSnap['likes']);
+                                                  _docSnap['userID'],
+                                                  _docSnap['messageID'],
+                                                  _docSnap['replyID'],
+                                                  _docSnap['sender'],
+                                                  _docSnap['message'],
+                                                  _docSnap['dateSent'],
+                                                  _docSnap['likes']);
                                             },
                                           ),
                                         ),
@@ -218,7 +218,7 @@ class _RepliesState extends State<Replies> {
                               suffixIcon: IconButton(
                                 icon: Icon(Icons.send),
                                 onPressed: () {
-                                  sendReply();
+                                  _sendReply();
                                 },
                               )),
                           textCapitalization: TextCapitalization.sentences,
@@ -245,16 +245,16 @@ class _RepliesState extends State<Replies> {
         ));
   }
 
-  Future sendReply() async {
-    String username = await getUserDetail('username', savedKey);
+  Future _sendReply() async {
+    String _username = await getUserDetail('username', savedKey);
 
-    Uuid uuid = new Uuid();
-    String id = uuid.v1();
+    Uuid _uuid = new Uuid();
+    String _id = _uuid.v1();
 
     Firestore.instance.collection('replies').document().setData({
-      'replyID': id,
-      'messageID': widget.id,
-      'sender': username,
+      'replyID': _id,
+      'messageID': widget._id,
+      'sender': _username,
       'message': _messageController.text,
       'dateSent': Timestamp.now(),
       'userID': savedKey,
@@ -278,7 +278,7 @@ class _RepliesState extends State<Replies> {
                   child: StreamBuilder(
                       stream: Firestore.instance
                           .collection('replies')
-                          .where('messageID', isEqualTo: widget.id)
+                          .where('messageID', isEqualTo: widget._id)
                           .orderBy('dateSent', descending: true)
                           .snapshots(),
                       builder: (context, snapshot) {
@@ -288,7 +288,7 @@ class _RepliesState extends State<Replies> {
                                 shrinkWrap: true,
                                 itemCount: snapshot.data.documents.length,
                                 itemBuilder: (context, index) {
-                                  DocumentSnapshot docSnap =
+                                  DocumentSnapshot _docSnap =
                                       snapshot.data.documents[index];
                                   return Card(
                                     color: Colors.purple[200],
@@ -303,9 +303,9 @@ class _RepliesState extends State<Replies> {
                                                 MainAxisAlignment.spaceBetween,
                                             children: <Widget>[
                                               Text(
-                                                docSnap['sender'].length < 10.0
-                                                    ? docSnap['sender']
-                                                    : docSnap['sender']
+                                                _docSnap['sender'].length < 10.0
+                                                    ? _docSnap['sender']
+                                                    : _docSnap['sender']
                                                             .toString()
                                                             .substring(0, 10) +
                                                         "...",
@@ -316,7 +316,7 @@ class _RepliesState extends State<Replies> {
                                               ),
                                               Text(
                                                 formatDateOptions(
-                                                    docSnap['dateSent']),
+                                                    _docSnap['dateSent']),
                                                 style: TextStyle(
                                                   fontWeight: FontWeight.w300,
                                                 ),
@@ -326,7 +326,7 @@ class _RepliesState extends State<Replies> {
                                           Padding(
                                             padding: const EdgeInsets.all(8.0),
                                             child: Text(
-                                              docSnap['message'],
+                                              _docSnap['message'],
                                             ),
                                           ),
                                         ],
@@ -334,12 +334,12 @@ class _RepliesState extends State<Replies> {
                                       onLongPress: () {
                                         moreOptions(
                                             context,
-                                            docSnap['userID'],
-                                            docSnap['messageID'],
-                                            docSnap['replyID'],
-                                            docSnap['sender'],
-                                            docSnap['message'],
-                                            docSnap['dateSent'],
+                                            _docSnap['userID'],
+                                            _docSnap['messageID'],
+                                            _docSnap['replyID'],
+                                            _docSnap['sender'],
+                                            _docSnap['message'],
+                                            _docSnap['dateSent'],
                                             null);
                                       },
                                     ),

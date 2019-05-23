@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
 class Menu extends StatelessWidget {
-  bool isNewRouteSameAsCurrent = false;
+  bool _isNewRouteSameAsCurrent = false;
 
   @override
   Widget build(BuildContext context) {
@@ -34,28 +34,28 @@ class Menu extends StatelessWidget {
                   leading: Icon(Icons.home),
                   title: Text('Home'),
                   onTap: () {
-                    openPage(context, '/');
+                    _openPage(context, '/');
                   },
                 ),
                 ListTile(
                   leading: Icon(Icons.contacts),
                   title: Text('Contacts'),
                   onTap: () {
-                    openPage(context, '/contacts');
+                    _openPage(context, '/contacts');
                   },
                 ),
                 ListTile(
                   leading: Icon(Icons.map),
                   title: Text('Resources'),
                   onTap: () {
-                    openPage(context, '/resources');
+                    _openPage(context, '/resources');
                   },
                 ),
                 ListTile(
                   leading: Icon(Icons.chat),
                   title: Text('Chatroom'),
                   onTap: () {
-                    openPage(context, '/chatroom');
+                    _openPage(context, '/chatroom');
                   },
                 ),
               ],
@@ -72,14 +72,14 @@ class Menu extends StatelessWidget {
                         leading: Icon(Icons.person),
                         title: Text('Profile'),
                         onTap: () {
-                          openPage(context, '/profile');
+                          _openPage(context, '/profile');
                         },
                       ),
                       ListTile(
                         leading: Icon(Icons.info),
                         title: Text('About'),
                         onTap: () {
-                          openPage(context, '/about');
+                          _openPage(context, '/about');
                         },
                       )
                     ],
@@ -89,15 +89,15 @@ class Menu extends StatelessWidget {
     );
   }
 
-  void openPage(BuildContext context, String page) {
+  void _openPage(BuildContext context, String page) {
     Navigator.popUntil(context, (route) {
       if (route.settings.name == page) {
-        isNewRouteSameAsCurrent = true;
+        _isNewRouteSameAsCurrent = true;
       }
       return true;
     });
 
-    if (!isNewRouteSameAsCurrent) {
+    if (!_isNewRouteSameAsCurrent) {
       Navigator.of(context).pop();
       Navigator.pushNamed(context, page);
     } else {

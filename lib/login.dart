@@ -1,9 +1,10 @@
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:emergency_help/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import 'sharedFunctions.dart';
+import 'main.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -11,7 +12,7 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  String doesntExist = "No account exists with this username and phone number";
+  String _doesntExist = "No account exists with this username and phone number";
   final _usernameController = TextEditingController();
   final _phoneNumberController = TextEditingController();
 
@@ -78,7 +79,7 @@ class _LoginState extends State<Login> {
                         ),
                         onPressed: () {
                           if (_usernameController.text.isNotEmpty && _phoneNumberController.text.isNotEmpty) {
-                            accountLogin();
+                            _accountLogin();
                           }
                         },
                       ),
@@ -93,7 +94,7 @@ class _LoginState extends State<Login> {
     );
   }
 
-  Future accountLogin() async {
+  Future _accountLogin() async {
     await Firestore.instance
         .collection('users')
         .where('phoneNumber', isEqualTo: _phoneNumberController.text)
@@ -108,7 +109,7 @@ class _LoginState extends State<Login> {
         doesUserHaveAccount = true;
         Navigator.pushReplacementNamed(context, '/');
       } else {
-        errorDialog(context, doesntExist);
+        errorDialog(context, _doesntExist);
       }
     });
   }

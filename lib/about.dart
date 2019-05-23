@@ -30,7 +30,7 @@ class _AboutState extends State<About> {
                     return ListView.builder(
                         itemCount: snapshot.data.documents.length,
                         itemBuilder: (context, index) {
-                          DocumentSnapshot docSnap =
+                          DocumentSnapshot _docSnap =
                               snapshot.data.documents[index];
                           return Card(
                             color: Colors.purple[100],
@@ -39,7 +39,7 @@ class _AboutState extends State<About> {
                                 horizontal: 10.0, vertical: 6.0),
                             child: ExpansionTile(
                               title: Text(
-                                docSnap['question'],
+                                _docSnap['question'],
                                 style: TextStyle(
                                   fontSize: 20.0,
                                   fontWeight: FontWeight.bold,
@@ -48,7 +48,7 @@ class _AboutState extends State<About> {
                               children: <Widget>[
                                 ListTile(
                                   title: Text(
-                                    docSnap['answer'],
+                                    _docSnap['answer'],
                                   ),
                                 ),
                               ],

@@ -35,7 +35,7 @@ class _ResourcesState extends State<Resources> {
                         return ListView.builder(
                             itemCount: snapshot.data.documents.length,
                             itemBuilder: (context, index) {
-                              DocumentSnapshot docSnap =
+                              DocumentSnapshot _docSnap =
                                   snapshot.data.documents[index];
                               return Card(
                                 color: Colors.purple[100],
@@ -46,20 +46,20 @@ class _ResourcesState extends State<Resources> {
                                   title: Column(
                                     children: <Widget>[
                                       Text(
-                                        docSnap['name'],
+                                        _docSnap['name'],
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           fontSize: 20.0,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                      docSnap['desc'] != null
+                                      _docSnap['desc'] != null
                                           ? Text(
-                                              docSnap['desc'],
+                                              _docSnap['desc'],
                                               textAlign: TextAlign.center,
                                             )
                                           : IgnorePointer(),
-                                      docSnap['locationString'] != null
+                                      _docSnap['locationString'] != null
                                           ? Padding(
                                               padding: const EdgeInsets.only(
                                                   top: 8.0),
@@ -71,15 +71,15 @@ class _ResourcesState extends State<Resources> {
                                               ),
                                             )
                                           : IgnorePointer(),
-                                      docSnap['locationString'] != null
+                                      _docSnap['locationString'] != null
                                           ? Text(
-                                              docSnap['locationString'],
+                                              _docSnap['locationString'],
                                               textAlign: TextAlign.center,
                                             )
                                           : IgnorePointer(),
-                                      !(docSnap['phone1'] == null &&
-                                              docSnap['phone2'] == null &&
-                                              docSnap['phone3'] == null)
+                                      !(_docSnap['phone1'] == null &&
+                                              _docSnap['phone2'] == null &&
+                                              _docSnap['phone3'] == null)
                                           ? Padding(
                                               padding: const EdgeInsets.only(
                                                   top: 8.0),
@@ -91,24 +91,24 @@ class _ResourcesState extends State<Resources> {
                                               ),
                                             )
                                           : IgnorePointer(),
-                                      docSnap['phone1'] != null
+                                      _docSnap['phone1'] != null
                                           ? Text(
-                                              docSnap['phone1'],
+                                              _docSnap['phone1'],
                                             )
                                           : IgnorePointer(),
-                                      docSnap['phone2'] != null
+                                      _docSnap['phone2'] != null
                                           ? Text(
-                                              docSnap['phone2'],
+                                              _docSnap['phone2'],
                                             )
                                           : IgnorePointer(),
-                                      docSnap['phone3'] != null
+                                      _docSnap['phone3'] != null
                                           ? Text(
-                                              docSnap['phone3'],
+                                              _docSnap['phone3'],
                                             )
                                           : IgnorePointer(),
-                                      docSnap['fax'] != null
+                                      _docSnap['fax'] != null
                                           ? Text(
-                                              "Fax: " + docSnap['fax'],
+                                              "Fax: " + _docSnap['fax'],
                                             )
                                           : IgnorePointer(),
                                       Padding(
@@ -121,20 +121,20 @@ class _ResourcesState extends State<Resources> {
                                           ),
                                         ),
                                       ),
-                                      docSnap['email'] != null
+                                      _docSnap['email'] != null
                                           ? Text(
-                                              docSnap['email'],
+                                              _docSnap['email'],
                                               textAlign: TextAlign.center,
                                             )
                                           : IgnorePointer(),
-                                      docSnap['website'] != null
+                                      _docSnap['website'] != null
                                           ? FlatButton(
                                               child: Text(
                                                 "Open website",
                                                 textAlign: TextAlign.center,
                                               ),
                                               onPressed: () {
-                                                launch(docSnap['website']);
+                                                launch(_docSnap['website']);
                                               },
                                             )
                                           : IgnorePointer(),
@@ -148,15 +148,15 @@ class _ResourcesState extends State<Resources> {
                                     ),
                                   ),
                                   onLongPress: () {
-                                    GeoPoint geopoint = docSnap['location'];
-                                    moreOptions(
+                                    GeoPoint _geopoint = _docSnap['location'];
+                                    _moreOptions(
                                         context,
-                                        docSnap['id'],
-                                        docSnap['phone1'],
-                                        docSnap['phone2'],
-                                        docSnap['email'],
-                                        docSnap['website'],
-                                        geopoint);
+                                        _docSnap['id'],
+                                        _docSnap['phone1'],
+                                        _docSnap['phone2'],
+                                        _docSnap['email'],
+                                        _docSnap['website'],
+                                        _geopoint);
                                   },
                                 ),
                               );
@@ -194,7 +194,7 @@ class _ResourcesState extends State<Resources> {
     );
   }
 
-  void moreOptions(BuildContext context, String id, String phone1,
+  void _moreOptions(BuildContext context, String id, String phone1,
       String phone2, String email, String website, GeoPoint geopoint) {
     showDialog(
         context: context,
@@ -209,11 +209,11 @@ class _ResourcesState extends State<Resources> {
                     ? FlatButton(
                         child: Text("Show on map"),
                         onPressed: () {
-                          String url = "https://maps.google.com/maps/?q=" +
+                          String _url = "https://maps.google.com/maps/?q=" +
                               geopoint.latitude.toString() +
                               "," +
                               geopoint.longitude.toString();
-                          launch(url);
+                          launch(_url);
                         },
                       )
                     : IgnorePointer(),

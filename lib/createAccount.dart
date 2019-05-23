@@ -1,10 +1,10 @@
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
 
+import 'sharedFunctions.dart';
 import 'main.dart';
 
 class CreateAccount extends StatefulWidget {
@@ -13,7 +13,7 @@ class CreateAccount extends StatefulWidget {
 }
 
 class _CreateAccountState extends State<CreateAccount> {
-  String accountExists = "An account with this phone number already exists";
+  String _accountExistsError = "An account with this phone number already exists";
 
   final _usernameController = TextEditingController();
   final _phoneNumberController = TextEditingController();
@@ -81,7 +81,7 @@ class _CreateAccountState extends State<CreateAccount> {
                         ),
                         onPressed: () {
                           if (_usernameController.text.isNotEmpty && _phoneNumberController.text.isNotEmpty) {
-                            setupAccount();
+                            _setupAccount();
                           }
                         },
                       ),
@@ -96,7 +96,7 @@ class _CreateAccountState extends State<CreateAccount> {
     );
   }
 
-  Future setupAccount() async {
+  Future _setupAccount() async {
     await Firestore.instance
         .collection('users')
         .where('phoneNumber', isEqualTo: _phoneNumberController.text)
@@ -126,7 +126,7 @@ class _CreateAccountState extends State<CreateAccount> {
 
         Navigator.pushNamed(context, '/contacts');
       } else
-        errorDialog(context, accountExists);
+        errorDialog(context, _accountExistsError);
     });
   }
 }

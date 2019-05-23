@@ -50,7 +50,7 @@ class _ContactsState extends State<Contacts> {
                         return ListView.builder(
                             itemCount: snapshot.data.documents.length,
                             itemBuilder: (context, index) {
-                              DocumentSnapshot docSnap =
+                              DocumentSnapshot _docSnap =
                                   snapshot.data.documents[index];
                               return Card(
                                 color: Colors.purple[100],
@@ -61,35 +61,35 @@ class _ContactsState extends State<Contacts> {
                                   title: Row(
                                     children: <Widget>[
                                       Text(
-                                        docSnap['name'],
+                                        _docSnap['name'],
                                         style: TextStyle(
                                           fontSize: 20.0,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
                                       Text(
-                                        " | " + docSnap['phoneNumber'],
+                                        " | " + _docSnap['phoneNumber'],
                                         style: TextStyle(
                                           fontWeight: FontWeight.w300,
                                         ),
                                       ),
                                     ],
                                   ),
-                                  trailing: docSnap['selected'] == false
+                                  trailing: _docSnap['selected'] == false
                                       ? Icon(Icons.check_box_outline_blank)
                                       : Icon(Icons.check_box),
                                   onTap: () {
-                                    selectContact(context, docSnap['contactID'],
-                                        docSnap['selected']);
+                                    _selectContact(context, _docSnap['contactID'],
+                                        _docSnap['selected']);
                                   },
                                   onLongPress: () {
-                                    showContactMenu(
+                                    _showContactMenu(
                                         context,
-                                        docSnap['contactID'],
-                                        docSnap['name'],
-                                        docSnap['phoneNumber'],
-                                        docSnap['dateAdded'],
-                                        docSnap['selected']);
+                                        _docSnap['contactID'],
+                                        _docSnap['name'],
+                                        _docSnap['phoneNumber'],
+                                        _docSnap['dateAdded'],
+                                        _docSnap['selected']);
                                   },
                                 ),
                               );
@@ -140,7 +140,7 @@ class _ContactsState extends State<Contacts> {
     );
   }
 
-  void showContactMenu(BuildContext context, String id, String name,
+  void _showContactMenu(BuildContext context, String id, String name,
       String phoneNumber, DateTime date, bool selected) {
     showDialog(
         context: context,
@@ -154,27 +154,27 @@ class _ContactsState extends State<Contacts> {
                 FlatButton(
                   child: Text("Details"),
                   onPressed: () {
-                    contactDetails(
+                    _contactDetails(
                         context, id, name, phoneNumber, date, selected);
                   },
                 ),
                 FlatButton(
                   child: Text("Edit"),
                   onPressed: () {
-                    editContact(context, id, name, phoneNumber);
+                    _editContact(context, id, name, phoneNumber);
                   },
                 ),
                 FlatButton(
                   child: Text("Delete"),
                   onPressed: () {
-                    deleteContact(context, id, name);
+                    _deleteContact(context, id, name);
                   },
                 )
               ]);
         });
   }
 
-  void deleteContact(BuildContext context, String id, String name) {
+  void _deleteContact(BuildContext context, String id, String name) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -223,7 +223,7 @@ class _ContactsState extends State<Contacts> {
         });
   }
 
-  void editContact(
+  void _editContact(
       BuildContext context, String id, String name, String phoneNumber) {
     _nameController.text = name;
     _phoneNumberController.text = phoneNumber;
@@ -300,7 +300,7 @@ class _ContactsState extends State<Contacts> {
         });
   }
 
-  void selectContact(BuildContext context, String id, bool selected) {
+  void _selectContact(BuildContext context, String id, bool selected) {
     Firestore.instance
         .collection('contacts')
         .where('contactID', isEqualTo: id)
@@ -320,7 +320,7 @@ class _ContactsState extends State<Contacts> {
     });
   }
 
-  void contactDetails(BuildContext context, String id, String name,
+  void _contactDetails(BuildContext context, String id, String name,
       String phoneNumber, DateTime date, bool selected) {
     showDialog(
         context: context,

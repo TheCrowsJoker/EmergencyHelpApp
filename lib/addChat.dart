@@ -1,9 +1,10 @@
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:emergency_help/main.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
+
+import 'sharedFunctions.dart';
+import 'main.dart';
 
 class AddChat extends StatefulWidget {
   @override
@@ -19,16 +20,16 @@ class _AddChatState extends State<AddChat> {
     super.dispose();
   }
 
-  Future updateDatabase(BuildContext context) async {
+  Future _updateDatabase(BuildContext context) async {
     if (_messageController.text.isNotEmpty) {
-      Uuid uuid = new Uuid();
-      String id = uuid.v1();
+      Uuid _uuid = new Uuid();
+      String _id = _uuid.v1();
 
-      String username = await getUserDetail('username', savedKey);
+      String _username = await getUserDetail('username', savedKey);
 
       Firestore.instance.collection('chats').document().setData({
-        'messageID': id,
-        'sender': username,
+        'messageID': _id,
+        'sender': _username,
         'message': _messageController.text,
         'dateSent': Timestamp.now(),
         'userID': savedKey,
@@ -85,7 +86,7 @@ class _AddChatState extends State<AddChat> {
                         ),
                         RaisedButton(
                           onPressed: () {
-                            updateDatabase(context);
+                            _updateDatabase(context);
                           },
                           color: Theme.of(context).primaryColorLight,
                           disabledColor: Colors.grey,

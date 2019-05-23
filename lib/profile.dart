@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:date_format/date_format.dart';
 
 import 'main.dart';
+import 'sharedFunctions.dart';
 
 class Profile extends StatefulWidget {
   @override
@@ -12,7 +13,7 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   bool _editing = false;
-  bool onlyOnce = true;
+  bool _onlyOnce = true;
 
   final _usernameController = TextEditingController();
   final _phoneNumberController = TextEditingController();
@@ -22,7 +23,7 @@ class _ProfileState extends State<Profile> {
   String _phoneNumber;
 
 //  Used to show which info was deleted
-  List resultList = [];
+  List _resultList = [];
 
   @override
   void dispose() {
@@ -61,14 +62,14 @@ class _ProfileState extends State<Profile> {
                         .snapshots(),
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
-                        DocumentSnapshot docSnap = snapshot.data.documents[0];
-                        _username = docSnap['username'];
-                        _phoneNumber = docSnap['phoneNumber'];
+                        DocumentSnapshot _docSnap = snapshot.data.documents[0];
+                        _username = _docSnap['username'];
+                        _phoneNumber = _docSnap['phoneNumber'];
 //                      Only set the controllers once to use as initial values
-                        if (onlyOnce == true) {
+                        if (_onlyOnce == true) {
                           _usernameController.text = _username;
                           _phoneNumberController.text = _phoneNumber;
-                          onlyOnce = false;
+                          _onlyOnce = false;
                         }
                         return Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -85,7 +86,6 @@ class _ProfileState extends State<Profile> {
                                 textCapitalization: TextCapitalization.words,
                               ),
                               TextFormField(
-//                              initialValue: _phoneNumber,
                                 decoration:
                                 InputDecoration(labelText: 'Phone Number'),
                                 enabled: _editing,
@@ -93,7 +93,7 @@ class _ProfileState extends State<Profile> {
                                 controller: _phoneNumberController,
                               ),
                               TextFormField(
-                                initialValue: formatDate(docSnap['dateJoined'], [dd, '/', mm, '/', yyyy, ' ', HH, ':', nn]),
+                                initialValue: formatDate(_docSnap['dateJoined'], [dd, '/', mm, '/', yyyy, ' ', HH, ':', nn]),
                                 decoration:
                                 InputDecoration(labelText: 'Date Joined'),
                                 enabled: false,
@@ -113,7 +113,7 @@ class _ProfileState extends State<Profile> {
                                           "Logout",
                                         ),
                                         onPressed: () {
-                                          logout(context);
+                                          _logout(context);
                                         },
                                       ),
                                     ),
@@ -136,7 +136,7 @@ class _ProfileState extends State<Profile> {
                                           "Delete Info",
                                         ),
                                         onPressed: () {
-                                          deleteMessages(context);
+                                          _deleteMessages(context);
                                         },
                                       ) :
                                       IgnorePointer(),
@@ -160,7 +160,7 @@ class _ProfileState extends State<Profile> {
                                           "Delete Account",
                                         ),
                                         onPressed: () {
-                                          deleteAccountDialog(context);
+                                          _deleteAccountDialog(context);
                                         },
                                       ) :
                                       IgnorePointer(),
@@ -232,7 +232,7 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  void deleteAccountDialog(BuildContext context) {
+  void _deleteAccountDialog(BuildContext context) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -292,7 +292,7 @@ class _ProfileState extends State<Profile> {
         });
   }
 
-  void logout(BuildContext context) {
+  void _logout(BuildContext context) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -332,7 +332,7 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  void deleteMessages(BuildContext context) {
+  void _deleteMessages(BuildContext context) {
     showDialog(
         context: context,
         builder: (BuildContext dialogContext) {
@@ -356,17 +356,17 @@ class _ProfileState extends State<Profile> {
                       RaisedButton(
                         child: Text("Yes"),
                         onPressed: () {
-                          resultList.clear(); // clear resultlist
+                          _resultList.clear(); // clear resultlist
                           // messages
-                          deleteInfo('message');
+                          _deleteInfo('message');
                           // chats
-                          deleteInfo('chats');
+                          _deleteInfo('chats');
                           // replies
-                          deleteInfo('replies');
+                          _deleteInfo('replies');
                           // moreinfomessages
-                          deleteInfo('moreInfoMessages');
+                          _deleteInfo('moreInfoMessages');
                           // contacts
-                          deleteInfo('contacts');
+                          _deleteInfo('contacts');
 
                           Navigator.pop(dialogContext);
 
@@ -375,7 +375,7 @@ class _ProfileState extends State<Profile> {
                             action: SnackBarAction(
                               label: 'Details',
                               onPressed: () {
-                                deletionResults(context);
+                                _deletionResults(context);
                               },
                             ),
                           );
@@ -390,8 +390,8 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  void deleteInfo(String db) {
-    String string;
+  void _deleteInfo(String db) {
+    String _string;
     Firestore.instance
         .collection(db)
         .where("userID", isEqualTo: savedKey)
@@ -404,16 +404,16 @@ class _ProfileState extends State<Profile> {
               .document(doc.documents[i].documentID)
               .delete();
         }
-        string = db + ": Deleted " + doc.documents.length.toString() + " documents";
+        _string = db + ": Deleted " + doc.documents.length.toString() + " documents";
       } else {
-        string = db + ": Nothing found";
+        _string = db + ": Nothing found";
         print("error, no docs found in " + db);
       }
-      resultList.add(string);
+      _resultList.add(_string);
     });
   }
 
-  void deletionResults(BuildContext context) {
+  void _deletionResults(BuildContext context) {
     showDialog(
         context: context,
         builder: (BuildContext dialogContext) {
@@ -426,9 +426,9 @@ class _ProfileState extends State<Profile> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: ListView.builder(shrinkWrap: true,
-                      itemCount: resultList.length,
+                      itemCount: _resultList.length,
                       itemBuilder: (BuildContext ctxt, int index) {
-                        return Text(resultList[index]);
+                        return Text(_resultList[index]);
                       }
                   ),
                 ),

@@ -1,14 +1,12 @@
 import 'dart:async';
-import 'dart:io';
-import 'package:emergency_help/login.dart';
-import 'package:emergency_help/splash.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sms/sms.dart';
 import 'package:location/location.dart';
 import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
 
+//My Files
+import 'sharedFunctions.dart';
 import 'createAccount.dart';
 import 'menu.dart';
 import 'contacts.dart';
@@ -18,6 +16,8 @@ import 'chatroom.dart';
 import 'addChat.dart';
 import 'profile.dart';
 import 'about.dart';
+import 'login.dart';
+import 'splash.dart';
 
 // Global variables that need to be accessed from other files
 String appName = "code:PURPLE";
@@ -52,6 +52,7 @@ class _MyAppState extends State<MyApp> {
 //  SMS values
   SmsSender _sender;
   List<String> _addresses;
+  List<String> _selectedContactsList;
 
   int _numMessagesToSend;
   int _numMessagesLeftToSend;
@@ -59,7 +60,7 @@ class _MyAppState extends State<MyApp> {
   int _charLimit;
 
 //  Error messages
-  String noContactsSelectedError = "You have not selected any contacts, "
+  String _noContactsSelectedError = "You have not selected any contacts, "
       "this alert wont get sent to anyone";
 
 //  Location values
@@ -83,7 +84,7 @@ class _MyAppState extends State<MyApp> {
     _currentLocation['latitude'] = 0.0;
     _currentLocation['longitude'] = 0.0;
 
-    initPlatformState();
+    _initPlatformState();
     _locationSubscription =
         _location.onLocationChanged().listen((Map<String, double> _result) {
       setState(() {
@@ -91,10 +92,6 @@ class _MyAppState extends State<MyApp> {
       });
     });
 
-//    Check if user has a key
-//    _checkKey().then((result) => setState(() {
-//          doesUserHaveAccount = result;
-//        }));
 //    Save key to variable for quicker reading
     readKey().then((result) => setState(() {
           savedKey = result;
@@ -102,7 +99,7 @@ class _MyAppState extends State<MyApp> {
   }
 
 //  Also used for location
-  void initPlatformState() async {
+  void _initPlatformState() async {
     Map<String, double> _myLocation;
     try {
       _myLocation = await _location.getLocation();
@@ -120,7 +117,7 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  void sendMessages() async {
+  void _sendMessages() async {
     _date = new Timestamp.now();
     _username = await getUserDetail("username", savedKey);
     _latitude = _currentLocation['latitude'];
@@ -138,15 +135,15 @@ class _MyAppState extends State<MyApp> {
       'message': _message,
     });
 
-    _addresses = await getSelectedContactDetails("phoneNumber");
+    _addresses = await _getSelectedContactDetails("phoneNumber");
     _sender = new SmsSender();
 
     for (var address in _addresses)
       _sender.sendSms(new SmsMessage(address, _message));
   }
 
-  void sendMoreInfoMessages() async {
-    _addresses = await getSelectedContactDetails("phoneNumber");
+  void _sendMoreInfoMessages() async {
+    _addresses = await _getSelectedContactDetails("phoneNumber");
 
     _message = _controller.text;
     _sender = new SmsSender();
@@ -189,7 +186,7 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  void startTimer(BuildContext context) {
+  void _startTimer(BuildContext context) {
     setState(() {
       _timerRunning = true;
     });
@@ -198,8 +195,8 @@ class _MyAppState extends State<MyApp> {
         oneSec,
         (Timer timer) => setState(() {
               if (_timerValue < 0) {
-                stopTimer();
-                sendMessages();
+                _stopTimer();
+                _sendMessages();
                 _moreInfoDialog(context);
               } else {
                 _timerValue = _timerValue - 1;
@@ -207,7 +204,7 @@ class _MyAppState extends State<MyApp> {
             }));
   }
 
-  void stopTimer() {
+  void _stopTimer() {
     _timer.cancel();
     setState(() {
       _timerRunning = false;
@@ -257,7 +254,7 @@ class _MyAppState extends State<MyApp> {
                     ),
                     RaisedButton(
                       onPressed: () {
-                        sendMoreInfoMessages();
+                        _sendMoreInfoMessages();
 
 //                        Close dialog
                         Navigator.pop(context);
@@ -289,8 +286,8 @@ class _MyAppState extends State<MyApp> {
     return doesUserHaveAccount;
   }
 
-  Future<List> getSelectedContactDetails(String detail) async {
-    List<String> list = [];
+  Future<List> _getSelectedContactDetails(String detail) async {
+    _selectedContactsList = [];
     await Firestore.instance
         .collection('contacts')
         .where('userID', isEqualTo: savedKey)
@@ -298,15 +295,16 @@ class _MyAppState extends State<MyApp> {
         .getDocuments()
         .then((querySnapshot) {
       querySnapshot.documents.forEach((i) {
-        list.add(i.data[detail]);
+        _selectedContactsList.add(i.data[detail]);
       });
     });
 
-    return list;
+    return _selectedContactsList;
   }
 
   @override
   Widget build(BuildContext context) {
+//    Make app only work horizontally
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -376,15 +374,15 @@ class _MyAppState extends State<MyApp> {
                                 color: Theme.of(context).backgroundColor,
                                 onPressed: () {
                                   if (!_timerRunning) {
-                                    selectedContacts().then((anyContacts) {
+                                    _selectedContacts().then((anyContacts) {
                                       if (anyContacts == true)
-                                        startTimer(context);
+                                        _startTimer(context);
                                       else
                                         errorDialog(
-                                            context, noContactsSelectedError);
+                                            context, _noContactsSelectedError);
                                     });
                                   } else
-                                    stopTimer();
+                                    _stopTimer();
                                 },
                                 child: Center(
                                   child: Text(
@@ -457,87 +455,11 @@ class _MyAppState extends State<MyApp> {
         ));
   }
 
-  Future<bool> selectedContacts() async {
-    List list = await getSelectedContactDetails("contactID");
+  Future<bool> _selectedContacts() async {
+    List list = await _getSelectedContactDetails("contactID");
     if (list.length == 0)
       return false;
     else
       return true;
   }
-}
-
-Future<String> getUserDetail(String detail, String id) async {
-  String field;
-  await Firestore.instance
-      .collection('users')
-      .where('id', isEqualTo: id)
-      .limit(1)
-      .getDocuments()
-      .then((doc) {
-    field = doc.documents.first[detail];
-  });
-
-  return field;
-}
-
-Future<String> get _localPath async {
-  final directory = await getApplicationDocumentsDirectory();
-  return directory.path;
-}
-
-Future<File> get _localFile async {
-  final path = await _localPath;
-  return File('$path/key.txt');
-}
-
-Future<File> writeKey(String key) async {
-  final file = await _localFile;
-
-  // Write the file
-  return file.writeAsString('$key');
-}
-
-Future<String> readKey() async {
-  try {
-    final file = await _localFile;
-
-    // Read the file
-    String contents = await file.readAsString();
-
-    return contents;
-  } catch (e) {
-    // If encountering an error, return 0
-    return "0";
-  }
-}
-
-void errorDialog(BuildContext context, String string) {
-  showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return SimpleDialog(
-          title: Center(child: Text("Error!")),
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(string),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  RaisedButton(
-                    onPressed: () {
-//                        Close dialog
-                      Navigator.pop(context);
-                    },
-                    child: Text('Close'),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        );
-      });
 }
