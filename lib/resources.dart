@@ -55,9 +55,9 @@ class _ResourcesState extends State<Resources> {
                                       ),
                                       docSnap['desc'] != null
                                           ? Text(
-                                        docSnap['desc'],
-                                        textAlign: TextAlign.center,
-                                      )
+                                              docSnap['desc'],
+                                              textAlign: TextAlign.center,
+                                            )
                                           : IgnorePointer(),
                                       docSnap['locationString'] != null
                                           ? Padding(
@@ -128,9 +128,14 @@ class _ResourcesState extends State<Resources> {
                                             )
                                           : IgnorePointer(),
                                       docSnap['website'] != null
-                                          ? Text(
-                                              docSnap['website'],
-                                              textAlign: TextAlign.center,
+                                          ? FlatButton(
+                                              child: Text(
+                                                "Open website",
+                                                textAlign: TextAlign.center,
+                                              ),
+                                              onPressed: () {
+                                                launch(docSnap['website']);
+                                              },
                                             )
                                           : IgnorePointer(),
                                     ],

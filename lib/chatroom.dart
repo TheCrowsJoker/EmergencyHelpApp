@@ -253,63 +253,6 @@ void messageDetails(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
                   children: <Widget>[
-                    messageID != null
-                        ? Row(
-                            children: <Widget>[
-                              Text(
-                                "Message ID: ",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              AutoScrollText(
-                                items: <Widget>[
-                                  Text(
-                                    messageID,
-                                  ),
-                                ],
-                              )
-                            ],
-                          )
-                        : IgnorePointer(),
-                    userID != null
-                        ? Row(
-                            children: <Widget>[
-                              Text(
-                                "User ID: ",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              AutoScrollText(
-                                items: <Widget>[
-                                  Text(
-                                    userID,
-                                  ),
-                                ],
-                              )
-                            ],
-                          )
-                        : IgnorePointer(),
-                    replyID != null
-                        ? Row(
-                            children: <Widget>[
-                              Text(
-                                "Reply ID: ",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              AutoScrollText(
-                                items: <Widget>[
-                                  Text(
-                                    replyID,
-                                  ),
-                                ],
-                              )
-                            ],
-                          )
-                        : IgnorePointer(),
                     sender != null
                         ? Row(
                             children: <Widget>[
@@ -332,7 +275,7 @@ void messageDetails(
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              Text(dateSent.toString()),
+                              Text(formatDate(dateSent, [dd, '/', mm, '/', yyyy, ' ', HH, ':', nn])),
                             ],
                           )
                         : IgnorePointer(),

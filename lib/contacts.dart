@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:emergency_help/autoScrollText.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:date_format/date_format.dart';
 
 import 'main.dart';
 
@@ -338,23 +338,6 @@ class _ContactsState extends State<Contacts> {
                       Row(
                         children: <Widget>[
                           Text(
-                            "ID: ",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          AutoScrollText(
-                            items: <Widget>[
-                              Text(
-                                id,
-                              ),
-                            ],
-                          )
-                        ],
-                      ),
-                      Row(
-                        children: <Widget>[
-                          Text(
                             "Name: ",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
@@ -382,7 +365,7 @@ class _ContactsState extends State<Contacts> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          Text(date.toString()),
+                          Text(formatDate(date, [dd, '/', mm, '/', yyyy, ' ', HH, ':', nn])),
                         ],
                       ),
                       Row(

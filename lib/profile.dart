@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:date_format/date_format.dart';
 
 import 'main.dart';
 
@@ -74,11 +75,6 @@ class _ProfileState extends State<Profile> {
                           child: Column(
                             children: <Widget>[
                               TextFormField(
-                                initialValue: docSnap['id'],
-                                decoration: InputDecoration(labelText: 'ID'),
-                                enabled: false,
-                              ),
-                              TextFormField(
                                 inputFormatters: [
                                   LengthLimitingTextInputFormatter(10),
                                 ],
@@ -97,7 +93,7 @@ class _ProfileState extends State<Profile> {
                                 controller: _phoneNumberController,
                               ),
                               TextFormField(
-                                initialValue: docSnap['dateJoined'].toString(),
+                                initialValue: formatDate(docSnap['dateJoined'], [dd, '/', mm, '/', yyyy, ' ', HH, ':', nn]),
                                 decoration:
                                 InputDecoration(labelText: 'Date Joined'),
                                 enabled: false,
