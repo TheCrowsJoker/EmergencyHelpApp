@@ -82,6 +82,8 @@ class _CreateAccountState extends State<CreateAccount> {
                         onPressed: () {
                           if (_usernameController.text.isNotEmpty && _phoneNumberController.text.isNotEmpty) {
                             _setupAccount();
+                          } else {
+                            errorDialog(context, missingFieldError);
                           }
                         },
                       ),

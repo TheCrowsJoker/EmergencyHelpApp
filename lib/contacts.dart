@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:emergency_help/sharedFunctions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:date_format/date_format.dart';
@@ -272,24 +273,28 @@ class _ContactsState extends State<Contacts> {
                       RaisedButton(
                         child: Text("Save"),
                         onPressed: () {
-                          Firestore.instance
-                              .collection('contacts')
-                              .where('contactID', isEqualTo: id)
-                              .limit(1)
-                              .getDocuments()
-                              .then((doc) {
-                            if (doc.documents.length > 0)
-                              Firestore.instance
-                                  .collection('contacts')
-                                  .document(doc.documents[0].documentID)
-                                  .updateData({
-                                'name': _nameController.text,
-                                'phoneNumber': _phoneNumberController.text,
-                              });
-                            else {
-                              print("error, no docs found");
-                            }
-                          });
+                          if (_nameController.text.isNotEmpty && _phoneNumberController.text.isNotEmpty) {
+                            Firestore.instance
+                                .collection('contacts')
+                                .where('contactID', isEqualTo: id)
+                                .limit(1)
+                                .getDocuments()
+                                .then((doc) {
+                              if (doc.documents.length > 0)
+                                Firestore.instance
+                                    .collection('contacts')
+                                    .document(doc.documents[0].documentID)
+                                    .updateData({
+                                  'name': _nameController.text,
+                                  'phoneNumber': _phoneNumberController.text,
+                                });
+                              else {
+                                print("error, no docs found");
+                              }
+                            });
+                          } else {
+                            errorDialog(context, missingFieldError);
+                          }
                           Navigator.pop(context);
                         },
                       )

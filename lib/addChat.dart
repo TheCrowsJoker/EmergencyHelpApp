@@ -36,6 +36,8 @@ class _AddChatState extends State<AddChat> {
         'likes': [],
       });
       Navigator.pop(context);
+    } else {
+      errorDialog(context, missingFieldError);
     }
   }
 

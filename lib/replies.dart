@@ -246,21 +246,25 @@ class _RepliesState extends State<Replies> {
   }
 
   Future _sendReply() async {
-    String _username = await getUserDetail('username', savedKey);
+    if (_messageController.text.isNotEmpty) {
+      String _username = await getUserDetail('username', savedKey);
 
-    Uuid _uuid = new Uuid();
-    String _id = _uuid.v1();
+      Uuid _uuid = new Uuid();
+      String _id = _uuid.v1();
 
-    Firestore.instance.collection('replies').document().setData({
-      'replyID': _id,
-      'messageID': widget._id,
-      'sender': _username,
-      'message': _messageController.text,
-      'dateSent': Timestamp.now(),
-      'userID': savedKey,
-    });
+      Firestore.instance.collection('replies').document().setData({
+        'replyID': _id,
+        'messageID': widget._id,
+        'sender': _username,
+        'message': _messageController.text,
+        'dateSent': Timestamp.now(),
+        'userID': savedKey,
+      });
 
-    _messageController.clear();
+      _messageController.clear();
+    } else {
+      errorDialog(context, missingFieldError);
+    }
   }
 
   void _viewReplies(context) {

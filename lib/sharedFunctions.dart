@@ -9,6 +9,8 @@ import 'package:sms/sms.dart';
 
 import 'main.dart';
 
+String missingFieldError = "All fields should be filled";
+
 Future<String> getUserDetail(String detail, String id) async {
   String field;
   await Firestore.instance

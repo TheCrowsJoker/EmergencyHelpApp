@@ -80,6 +80,8 @@ class _LoginState extends State<Login> {
                         onPressed: () {
                           if (_usernameController.text.isNotEmpty && _phoneNumberController.text.isNotEmpty) {
                             _accountLogin();
+                          } else {
+                            errorDialog(context, missingFieldError);
                           }
                         },
                       ),

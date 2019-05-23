@@ -254,7 +254,11 @@ class _MyAppState extends State<MyApp> {
                     ),
                     RaisedButton(
                       onPressed: () {
-                        _sendMoreInfoMessages();
+                        if (_controller.text.isNotEmpty) {
+                          _sendMoreInfoMessages();
+                        } else {
+                          errorDialog(context, missingFieldError);
+                        }
 
 //                        Close dialog
                         Navigator.pop(context);

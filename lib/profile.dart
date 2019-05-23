@@ -80,22 +80,23 @@ class _ProfileState extends State<Profile> {
                                   LengthLimitingTextInputFormatter(10),
                                 ],
                                 decoration:
-                                InputDecoration(labelText: 'Username'),
+                                    InputDecoration(labelText: 'Username'),
                                 enabled: _editing,
                                 controller: _usernameController,
                                 textCapitalization: TextCapitalization.words,
                               ),
                               TextFormField(
                                 decoration:
-                                InputDecoration(labelText: 'Phone Number'),
+                                    InputDecoration(labelText: 'Phone Number'),
                                 enabled: _editing,
                                 keyboardType: TextInputType.numberWithOptions(),
                                 controller: _phoneNumberController,
                               ),
                               TextFormField(
-                                initialValue: formatDate(_docSnap['dateJoined'], [dd, '/', mm, '/', yyyy, ' ', HH, ':', nn]),
+                                initialValue: formatDate(_docSnap['dateJoined'],
+                                    [dd, '/', mm, '/', yyyy, ' ', HH, ':', nn]),
                                 decoration:
-                                InputDecoration(labelText: 'Date Joined'),
+                                    InputDecoration(labelText: 'Date Joined'),
                                 enabled: false,
                               ),
                               Padding(
@@ -106,7 +107,7 @@ class _ProfileState extends State<Profile> {
                                     ButtonTheme(
                                       shape: RoundedRectangleBorder(
                                           borderRadius:
-                                          BorderRadius.circular(10.0)),
+                                              BorderRadius.circular(10.0)),
                                       height: 50.0,
                                       child: OutlineButton(
                                         child: Text(
@@ -128,18 +129,18 @@ class _ProfileState extends State<Profile> {
                                     ButtonTheme(
                                       shape: RoundedRectangleBorder(
                                           borderRadius:
-                                          BorderRadius.circular(10.0)),
+                                              BorderRadius.circular(10.0)),
                                       height: 50.0,
-                                      child: _editing ?
-                                      OutlineButton(
-                                        child: Text(
-                                          "Delete Info",
-                                        ),
-                                        onPressed: () {
-                                          _deleteMessages(context);
-                                        },
-                                      ) :
-                                      IgnorePointer(),
+                                      child: _editing
+                                          ? OutlineButton(
+                                              child: Text(
+                                                "Delete Info",
+                                              ),
+                                              onPressed: () {
+                                                _deleteMessages(context);
+                                              },
+                                            )
+                                          : IgnorePointer(),
                                     ),
                                   ],
                                 ),
@@ -152,18 +153,18 @@ class _ProfileState extends State<Profile> {
                                     ButtonTheme(
                                       shape: RoundedRectangleBorder(
                                           borderRadius:
-                                          BorderRadius.circular(10.0)),
+                                              BorderRadius.circular(10.0)),
                                       height: 50.0,
-                                      child: _editing ?
-                                      OutlineButton(
-                                        child: Text(
-                                          "Delete Account",
-                                        ),
-                                        onPressed: () {
-                                          _deleteAccountDialog(context);
-                                        },
-                                      ) :
-                                      IgnorePointer(),
+                                      child: _editing
+                                          ? OutlineButton(
+                                              child: Text(
+                                                "Delete Account",
+                                              ),
+                                              onPressed: () {
+                                                _deleteAccountDialog(context);
+                                              },
+                                            )
+                                          : IgnorePointer(),
                                     ),
                                   ],
                                 ),
@@ -184,29 +185,35 @@ class _ProfileState extends State<Profile> {
                     icon: Icon(Icons.edit),
                     label: Text(_editing == true ? "Stop Editing" : "Edit"),
                     onPressed: () {
+                      if (_usernameController.text.isNotEmpty &&
+                          _phoneNumberController.text.isNotEmpty) {
                       setState(() {
                         _editing == true ? _editing = false : _editing = true;
                       });
                       if (_username != _usernameController.text ||
                           _phoneNumber != _phoneNumberController.text) {
-                        Firestore.instance
-                            .collection('users')
-                            .where('id', isEqualTo: savedKey)
-                            .limit(1)
-                            .getDocuments()
-                            .then((doc) {
-                          if (doc.documents.length > 0)
-                            Firestore.instance
-                                .collection('users')
-                                .document(doc.documents[0].documentID)
-                                .updateData({
-                              'username': _usernameController.text,
-                              'phoneNumber': _phoneNumberController.text,
-                            });
-                          else {
-                            print("error, no docs found");
-                          }
-                        });
+
+                          Firestore.instance
+                              .collection('users')
+                              .where('id', isEqualTo: savedKey)
+                              .limit(1)
+                              .getDocuments()
+                              .then((doc) {
+                            if (doc.documents.length > 0)
+                              Firestore.instance
+                                  .collection('users')
+                                  .document(doc.documents[0].documentID)
+                                  .updateData({
+                                'username': _usernameController.text,
+                                'phoneNumber': _phoneNumberController.text,
+                              });
+                            else {
+                              print("error, no docs found");
+                            }
+                          });
+                        }
+                      } else {
+                        errorDialog(context, missingFieldError);
                       }
                     },
                   ),
@@ -244,7 +251,8 @@ class _ProfileState extends State<Profile> {
               children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text("You may want to delete your information first. Account deleteion cannot be undone"),
+                  child: Text(
+                      "You may want to delete your information first. Account deleteion cannot be undone"),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -328,8 +336,7 @@ class _ProfileState extends State<Profile> {
                   ),
                 ),
               ]);
-        }
-    );
+        });
   }
 
   void _deleteMessages(BuildContext context) {
@@ -386,8 +393,7 @@ class _ProfileState extends State<Profile> {
                   ),
                 ),
               ]);
-        }
-    );
+        });
   }
 
   void _deleteInfo(String db) {
@@ -404,7 +410,8 @@ class _ProfileState extends State<Profile> {
               .document(doc.documents[i].documentID)
               .delete();
         }
-        _string = db + ": Deleted " + doc.documents.length.toString() + " documents";
+        _string =
+            db + ": Deleted " + doc.documents.length.toString() + " documents";
       } else {
         _string = db + ": Nothing found";
         print("error, no docs found in " + db);
@@ -425,12 +432,12 @@ class _ProfileState extends State<Profile> {
               children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: ListView.builder(shrinkWrap: true,
+                  child: ListView.builder(
+                      shrinkWrap: true,
                       itemCount: _resultList.length,
                       itemBuilder: (BuildContext ctxt, int index) {
                         return Text(_resultList[index]);
-                      }
-                  ),
+                      }),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -447,7 +454,6 @@ class _ProfileState extends State<Profile> {
                   ),
                 ),
               ]);
-        }
-    );
+        });
   }
 }

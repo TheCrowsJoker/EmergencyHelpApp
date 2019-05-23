@@ -112,9 +112,7 @@ class _AddContactState extends State<AddContact> {
                             _nameController.text.isNotEmpty &&
                                     _phoneNumberController.text.isNotEmpty
                                 ? _updateDatabase(context)
-                                :
-                                // ignore: unnecessary_statements
-                                null;
+                                : errorDialog(context, missingFieldError);
                           },
                           color: Theme.of(context).primaryColorLight,
                           disabledColor: Colors.grey,
