@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('finds a Text Widget', (WidgetTester tester) async {
+  testWidgets('Menu Widget', (WidgetTester tester) async {
 //    Used to find the scaffold by the tester
     final scaffoldKey = GlobalKey<ScaffoldState>();
 
