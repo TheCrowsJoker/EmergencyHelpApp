@@ -22,7 +22,7 @@ void main() {
 //    Check all items are in the list
     expect(find.text('Home'), findsOneWidget);
     expect(find.text('Contacts'), findsOneWidget);
-    expect(find.text('Map / List'), findsOneWidget);
+    expect(find.text('Resources'), findsOneWidget);
     expect(find.text('Chatroom'), findsOneWidget);
     expect(find.text('Profile'), findsOneWidget);
     expect(find.text('About'), findsOneWidget);
