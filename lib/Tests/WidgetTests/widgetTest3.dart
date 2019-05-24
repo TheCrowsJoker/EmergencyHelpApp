@@ -10,6 +10,7 @@ void main() {
 
 //    Check header is present
     expect(find.text("Contacts"), findsOneWidget);
+
 //    Check page is loading
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
