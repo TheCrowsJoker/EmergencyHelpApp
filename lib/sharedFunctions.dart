@@ -267,7 +267,7 @@ String formatDateOptions(DateTime date) {
   // 12 Feb
   if (date.year == now.year) finalDate = formatDate(date, [dd, ' ', M]);
 
-  // if less than 12 hours ago eg:
+  // if less than 24 hours ago eg:
   // 3 hours
   if (now.difference(date).inHours < 24) if (now.difference(date).inHours == 1)
     finalDate = now.difference(date).inHours.toString() + " hour";
