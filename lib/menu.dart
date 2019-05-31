@@ -32,21 +32,21 @@ class Menu extends StatelessWidget {
                 ),
                 ListTile(
                   leading: Icon(Icons.home),
-                  title: Text('Home'),
+                  title: Text('I Need Help'),
                   onTap: () {
                     _openPage(context, '/');
                   },
                 ),
                 ListTile(
                   leading: Icon(Icons.contacts),
-                  title: Text('Contacts'),
+                  title: Text('My Contacts List'),
                   onTap: () {
                     _openPage(context, '/contacts');
                   },
                 ),
                 ListTile(
                   leading: Icon(Icons.map),
-                  title: Text('Resources'),
+                  title: Text('Help Centers'),
                   onTap: () {
                     _openPage(context, '/resources');
                   },
@@ -77,7 +77,7 @@ class Menu extends StatelessWidget {
                       ),
                       ListTile(
                         leading: Icon(Icons.info),
-                        title: Text('About'),
+                        title: Text('FAQ'),
                         onTap: () {
                           _openPage(context, '/about');
                         },
